@@ -1,0 +1,94 @@
+This is an implementation of DOM Level 1 Core.
+
+The code is organized into the modules described below.
+
+core.ss
+
+  The main module.  It exports everything from interfaces.ss and extra.ss.
+
+private.ss
+
+  This exports everything from all modules.  Useful for testing, and
+  for extending the implementation subclasses.  [Perhaps "protected"
+  would be a better name?  I don't understand MzScheme's notion of
+  protected symbols.]
+
+interfaces.ss
+
+  Interface definitions, copied fairly directly from the spec.  This
+  is mainly just a bunch of generics, interface classes (which cannot
+  be instantiated), and constants.
+
+extras.ss
+
+  Extra functionality defined solely in terms of the interfaces.  This
+  includes some methods for standard Swindle functions (ref, equals?,
+  print-object) as well as iterator constructors.  Some of these are
+  used by the implementation modules below.
+
+exn.ss
+
+  Exception functions, including raise-dom:exn.
+
+dom-implementation.ss
+
+  Implementation class <dom-implementation-impl> and
+  *the-dom-implementation*.
+
+collections.ss
+
+  Implementation classes <node-list-impl>, <named-node-map-impl>, and
+  <named-node-hash-table>, as well as an interface class
+  <node-collection> (which is an ancestor of both implementation
+  classes) and *the-empty-node-list*.
+
+document-fragment.ss
+
+  Implementation class <document-fragment-impl>, plus the methods for
+  adding a <document-fragment> to a <parent>.
+
+document.ss
+
+  Implementation class <document-impl>.
+
+node.ss
+
+  Base methods for <node>.  Note that there is no <node-impl>: all
+  slots on the descendants of <node> are defined in the following
+  three mixin classes.  This also defines the generic allow-child?,
+  for checking the table of parent/child relationships from section
+  1.1.1 (The DOM Structure Model), and syntax allow-child to declare
+  these relationships (which are generally found in the module for the
+  parent class).  This also defines error-raising generics
+  check-allow-child, check-ancestry, and check-has-child.
+
+owned.ss
+
+  Mixin class <owned>, for the owner-document attribute.  Also defined
+  the generic check-ownership.
+
+child.ss
+
+  Mixin class <child>, for the parent-node, next-sibling, and
+  previous-sibling attributes.
+
+parent.ss
+
+  Mixin class <parent>, for the first-child and last-child attributes.
+
+attr.ss
+
+  Implementation class <attr-impl>.
+
+element.ss
+
+  Implementation class <element-impl>.
+
+character-data.ss
+
+  Implementation classes <character-data-impl>, <text-impl>, and
+  <comment-impl>.
+
+name.ss
+
+  XML name validity checking.

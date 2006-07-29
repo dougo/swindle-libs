@@ -1,0 +1,39 @@
+General implementation notes
+============================
+
+An organizing principle is that implementation-specific accessors
+(i.e. not part of the DOM interface, such as mutators) are only used
+in the module where they are defined.  Also, exception checking is
+generally done in beforemethods.
+
+The superclasses of a class are listed in the following order: mixins
+first, then implementation superclasses, then interface classes.  This
+order is used by Swindle to break ties in class precedence.
+
+Efficiency trade-offs are generally made in favor of space rather than
+time.  For example, the slots for the <node> subclasses are split into
+several mixins, so that classes that don't need slots (e.g. <text>
+doesn't need node-name) don't have them.  Also, "readonly?" is not a
+slot but a method which traverses the ancestor/container list.  (An
+element is the container of its attributes.)
+
+The main exception to this is that <dom-string> is defined as
+<immutable-string> rather than <symbol>.  (Actually this is probably
+inefficient both in time and space, but I think it's worse for space:
+consider a document with a whole lot of elements with the same name.)
+I'm still on the fence with this one.  Things that are XML names
+(node-name, prefix, local-name) are naturally symbols (in fact they
+are symbols in MzScheme's xml library), and namespace-uri is used in
+table lookup so it should probably be a symbol too.  But it would be
+weird for node-value to be a symbol rather than a string... except the
+node-value of namespace attributes!  And I think it would be even
+weirder for <dom-string> to map to different types depending on the
+context.  One possibility would be to do our own interning of strings
+when creating nodes, with a weak-map of strings to strings (using
+ephemerons; see section 13.2 of the MzScheme manual).  Another would
+be to use symbols internally for node-name (or maybe just in
+<named-node-hash-table> keys), and converting back and forth to
+strings when talking to the user-- this would be more space efficient,
+but probably a lot slower.  (By the way, MzScheme symbols are stored
+in UTF-8, but strings are UTF-32.  But the DOM says they should be
+UTF-16...)
