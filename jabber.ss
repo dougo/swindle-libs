@@ -1,0 +1,13 @@
+(module jabber "swindle.ss"
+  (require* "client.ss")
+  (require* "dom.ss")
+  (require* "error.ss")
+  (require* "exn.ss")
+  (require* "iq.ss")
+  (require* "jid.ss")
+  (require* "message.ss")
+  (require* "presence.ss")
+  (require* "read.ss")
+  (require* "stanza.ss")
+  (require* "stream.ss")
+)
