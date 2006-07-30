@@ -1,3 +1,3 @@
-(module swindle "../dom/swindle.ss"
-  (provide (all-from "../dom/swindle.ss"))
+(module swindle (lib "swindle.ss" "dom")
+  (provide (all-from (lib "swindle.ss" "dom")))
 )
