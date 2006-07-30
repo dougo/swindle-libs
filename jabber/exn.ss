@@ -3,9 +3,9 @@
 (module exn "swindle.ss"
   (provide (all-defined))
 
-  (define-struct (exn:xmpp exn:fail) (condition text))
-  (define-struct (exn:xmpp:stream exn:xmpp) ())
-  (define-struct (exn:xmpp:stanza exn:xmpp) (stanza))
+  (defstruct <exn:xmpp> (<exn:fail>) condition text)
+  (defstruct <exn:xmpp:stream> (<exn:xmpp>))
+  (defstruct <exn:xmpp:stanza> (<exn:xmpp>) stanza)
 
   (defmethod (raise-stream-error (condition <symbol>) &opt format-string . args)
     (raise (make-stream-error condition format-string . args)))
