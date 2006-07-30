@@ -2,10 +2,9 @@
 
 (module dom "swindle.ss"
   (require (lib "dom.ss" "dom"))
-  (require (only (lib "dom-implementation.ss" "dom" "level-1" "core")
-		 <dom-implementation-impl>))
-  (require (only (lib "bootstrap.ss" "dom" "level-1" "xml") <xml-document>))
-  (require (only (lib "element.ss" "dom" "level-2" "core") <element-ns>))
+  (require (only (lib "private.ss" "dom")
+                 <dom-implementation-impl> <xml-document> <element-ns>))
+  (require-for-syntax (only (lib "13.ss" "srfi") string-index string-drop))
   (provide (all-defined))
 
   (defclass <jabber-dom-implementation> (<dom-implementation-impl>))
@@ -69,21 +68,24 @@
 
   ;; Define getter and setter methods for an element attribute.
   (defsyntax (defattr stx)
+    (define (local-name qname)
+      (let ((index (string-index qname #\:)))
+        (if index (string-drop qname (1+ index)) qname)))
     (syntax-case stx ()
       ((_ (name ns) class)
        (let* ((name-sym (syntax-e #'name))
-	      (name (symbol->string name-sym))
+	      (name-str (symbol->string name-sym))
 	      (set-name! (datum->syntax-object
 			  #'name (symbol-append 'set- name-sym '!) #'name))
-	      ((values prefix local-name) (parse-qname name)))
+	      (local-name-str (local-name name-str)))
 	 #`(begin
 	     (defmethod (name (x class))
-	       (attribute-ns x ns #,local-name))
+	       (attribute-ns x ns #,local-name-str))
 	     (defmethod (#,set-name! (x class) value)
-	       (set-attribute-ns! x ns #,name (as <dom-string> value)))
+	       (set-attribute-ns! x ns #,name-str (as <dom-string> value)))
 	     (defmethod (#,set-name! (x class) (value = #f))
-	       (remove-attribute-ns! x ns #,name))
+	       (remove-attribute-ns! x ns #,name-str))
 	     )))
       ((_ name . rest)
-       #'(_ (name #f #f) . rest))))
+       #'(_ (name #f) . rest))))
 )
