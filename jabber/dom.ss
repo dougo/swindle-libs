@@ -4,6 +4,7 @@
   (require (lib "dom.ss" "dom"))
   (require (only (lib "private.ss" "dom")
                  <dom-implementation-impl> <xml-document> <element-ns>))
+  (require (only (lib "13.ss" "srfi") string-null?))
   (require-for-syntax (only (lib "13.ss" "srfi") string-index string-drop))
   (provide (all-defined))
 
@@ -49,6 +50,7 @@
   ;; Define a subclass (or descendant) of <jabber-element> for
   ;; elements that have the given namespace URI and local name, as
   ;; well as a set of attribute getter and setter methods.
+  ;; TO DO: make a metaclass!
   (defsyntax defelementclass
     (syntax-rules ()
       ((_ (class-name super) ns name attr ...)
@@ -70,22 +72,29 @@
   (defsyntax (defattr stx)
     (define (local-name qname)
       (let ((index (string-index qname #\:)))
-        (if index (string-drop qname (1+ index)) qname)))
+        (if index
+            (string->immutable-string
+             (string-drop qname (1+ index)))
+            qname)))
     (syntax-case stx ()
-      ((_ (name ns) class)
+      ((_ (name . opts) class)
        (let* ((name-sym (syntax-e #'name))
-	      (name-str (symbol->string name-sym))
+	      (name-str (string->immutable-string (symbol->string name-sym)))
+	      (local-name-str (local-name name-str))
 	      (set-name! (datum->syntax-object
 			  #'name (symbol-append 'set- name-sym '!) #'name))
-	      (local-name-str (local-name name-str)))
+              (opts-list (syntax-object->datum #'opts))
+              (type (getarg opts-list :type '<dom-string>))
+              (ns (getarg opts-list :ns)))
 	 #`(begin
 	     (defmethod (name (x class))
-	       (attribute-ns x ns #,local-name-str))
-	     (defmethod (#,set-name! (x class) value)
-	       (set-attribute-ns! x ns #,name-str (as <dom-string> value)))
+	       (let ((val (attribute-ns x #,ns #,local-name-str)))
+                 (and (not (string-null? val)) (as #,type val))))
+	     (defmethod (#,set-name! (x class) (value #,type))
+	       (set-attribute-ns! x #,ns #,name-str (as <dom-string> value)))
 	     (defmethod (#,set-name! (x class) (value = #f))
-	       (remove-attribute-ns! x ns #,name-str))
+	       (remove-attribute-ns! x #,ns #,name-str))
 	     )))
       ((_ name . rest)
-       #'(_ (name #f) . rest))))
+       #'(_ (name) . rest))))
 )

@@ -1,8 +1,8 @@
 (module stream "swindle.ss"
   (require (lib "dom.ss" "dom"))
   (require "dom.ss")
-  (require (only "exn.ss" raise-stream-error))
-  (require (only "read.ss" read-xmpp-document read-xmpp-element))
+  (require "exn.ss")
+  (require "read.ss")
   (provide (all-defined))
 
   (define *streams-ns* "http://etherx.jabber.org/streams")
@@ -27,7 +27,12 @@
       (flush-output out)))
 
   (defelementclass <stream> *streams-ns* "stream"
-    to from id (xml:lang *xml-ns*))
+    to
+    from
+    (id :type <symbol>)
+    (xml:lang :ns *xml-ns* :type <symbol>)
+    version
+    )
 
   (defmethod (make-xmpp-document
 	      &key (stream-prefix "stream") (default-ns *client-ns*)
