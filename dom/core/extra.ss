@@ -67,9 +67,13 @@
   (defmethod* (each-child (parent <node>))
     (each-elt (child-nodes parent)))
 
+  ;; Each ancestor of child, beginning with child and traversing
+  ;; parent-node links.
   (defmethod* (each-ancestor (child <node>))
     (list child parent-node not identity))
 
+  ;; Each descendant of parent, beginning with parent and traversing
+  ;; its children in pre-order.
   (defmethod* (each-descendant (parent <node>))
     (list parent next-pre-order not identity))
 
@@ -165,8 +169,9 @@
 	 (equals? (attributes node1) (attributes node2))
 	 (equals? (child-nodes node1) (child-nodes node2))))
 
-  ;; Used by the namespaces algorithms in namespaces.ss.
+  ;; Find the first ancestor of node (not including node) that is an
+  ;; element.  Used by the namespaces algorithms in namespaces.ss.
   (defmethod* (ancestor-element (node <node>))
     (find-if-iterator (lambda (ancestor) (instance-of? ancestor <element>))
-		      (each-ancestor node)))
+		      (each-ancestor (parent-node node))))
 )
