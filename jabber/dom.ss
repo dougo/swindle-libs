@@ -90,7 +90,7 @@
 	     (defmethod (name (x class))
 	       (let ((val (attribute-ns x #,ns #,local-name-str)))
                  (and (not (string-null? val)) (as #,type val))))
-	     (defmethod (#,set-name! (x class) (value #,type))
+	     (defmethod (#,set-name! (x class) value)
 	       (set-attribute-ns! x #,ns #,name-str (as <dom-string> value)))
 	     (defmethod (#,set-name! (x class) (value = #f))
 	       (remove-attribute-ns! x #,ns #,name-str))
