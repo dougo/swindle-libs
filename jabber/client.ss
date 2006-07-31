@@ -2,6 +2,7 @@
 
 (module client "swindle.ss"
   (require "error.ss")
+  (require "logging.ss")
   (require "jid.ss")
   (require "stream.ss")
   (require "stanza.ss")
@@ -25,7 +26,11 @@
     (let* ((host (domain-id (address client)))
 	   (port (getarg initargs :tcp-port 5222))
 	   (log? (getarg initargs :log?))
+           (debug? (getarg initargs :debug?))
 	   ((values in out) (tcp-connect host port)))
+      (when debug?
+        ;; Copy the input stream to stdout.
+        (set! in (log-input-port in)))
       (set! (initial-stream client)
 	    (make <output-stream> :port out :log? log? :to host))
       (set! (response-stream client)

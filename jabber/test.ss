@@ -9,7 +9,7 @@
 
   (define (test)
     (set! client (make <client> :address (as <jid> "dougo-test@volity.net")
-		       :log? #t))
+		       :log? #t :debug? #t))
     )
 
 )

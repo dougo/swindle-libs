@@ -5,6 +5,7 @@
   (require* "exn.ss")
   (require* "iq.ss")
   (require* "jid.ss")
+  (require* "logging.ss")
   (require* "message.ss")
   (require* "presence.ss")
   (require* "read.ss")
