@@ -29,7 +29,7 @@
            (debug? (getarg initargs :debug?))
 	   ((values in out) (tcp-connect host port)))
       (when debug?
-        ;; Copy the input stream to stdout.
+        ;; Copy the input stream to stderr.
         (set! in (log-input-port in)))
       (set! (initial-stream client)
 	    (make <output-stream> :port out :log? log? :to host))
