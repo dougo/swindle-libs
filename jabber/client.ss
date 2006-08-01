@@ -38,18 +38,21 @@
 
   (defmethod (send (client <client>) (stanza <stanza>))
     (send-element (initial-stream client) stanza))
+  (defmethod (send (client <client>) (error <stream-error>))
+    (send-element (initial-stream client) error))
 
   ;; Handle an exception raised while reading a stanza from the response stream.
   (defmethod (handle-stream-exn (client <client>) (exn <exn:fail>))
     (call-next-method)
-    (send client (make-error-stanza exn (initial-stream client)))
+    (send client (make-stream-error exn (initial-stream client)))
     (close (initial-stream client)))
 
   ;; Handle an exception raised while handling a stanza received on
   ;; the response stream.
-  (defmethod (handle-stanza-exn (client <client>) (exn <exn:fail>))
+  (defmethod (handle-stanza-exn (client <client>) (exn <exn:fail>)
+                                (stanza <stanza>))
     (call-next-method)
-    (send client (make-error-stanza exn (initial-stream client))))
+    (send client (make-error-stanza exn stanza (initial-stream client))))
 
   ;; Handle a stream error received on the response stream.
   (defmethod (handle-element (client <client>) (error <stream-error>))

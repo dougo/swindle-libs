@@ -7,29 +7,35 @@
   (defstruct <exn:xmpp:stream> (<exn:xmpp>))
   (defstruct <exn:xmpp:stanza> (<exn:xmpp>) stanza)
 
-  (defmethod (raise-stream-error (condition <symbol>) &opt format-string . args)
-    (raise (make-stream-error condition format-string . args)))
+  (defmethod (condition (exn <exn:xmpp>))
+    (exn:xmpp-condition exn))
+  (defmethod (condition (exn <exn:fail>))
+    'internal-server-error)
 
-  (defmethod (make-stream-error (condition <symbol>) &opt format-string . args)
+  (defmethod (text (exn <exn:xmpp>))
+    (exn:xmpp-text exn))
+  (defmethod (text (exn <exn:fail>))
+    (exn-message exn))
+
+  (defmethod (raise-exn:xmpp:stream (condition <symbol>)
+                                    &opt format-string . args)
     (let ((text (and format-string (format format-string . args))))
-      (make-exn:xmpp:stream
-       (as <immutable-string>
-	   (echos :s- (if text condition 'stream-error) ": "
-		  (or text condition)))
-       (current-continuation-marks)
-       condition text)))
+      (raise 
+       (make-exn:xmpp:stream
+        (as <immutable-string>
+            (echos :s- (if text condition 'stream-error) ": "
+                   (or text condition)))
+        (current-continuation-marks)
+        condition text))))
 
-  (defmethod (raise-stanza-error stanza (condition <symbol>)
-				 &opt format-string . args)
-    (raise (make-stanza-error stanza condition format-string . args)))
-
-  (defmethod (make-stanza-error stanza (condition <symbol>)
-				&opt format-string . args)
+  (defmethod (raise-exn:xmpp:stanza stanza (condition <symbol>)
+                                    &opt format-string . args)
     (let ((text (and format-string (format format-string . args))))
-      (make-exn:xmpp:stanza
-       (as <immutable-string>
-	   (echos :s- (if text condition 'stanza-error) ": "
-		  (or text condition)))
-       (current-continuation-marks)
-       condition text stanza)))
+      (raise
+       (make-exn:xmpp:stanza
+        (as <immutable-string>
+            (echos :s- (if text condition 'stanza-error) ": "
+                   (or text condition)))
+        (current-continuation-marks)
+        condition text stanza))))
 )

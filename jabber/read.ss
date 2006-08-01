@@ -3,7 +3,7 @@
 (module read "swindle.ss"
   (require (only (lib "13.ss" "srfi") string-prefix?))
   (require (lib "dom.ss" "dom"))
-  (require (only "exn.ss" raise-stream-error))
+  (require "exn.ss")
   (provide (all-defined))
 
   ;; Read from an input port until the first start tag.  Return a
@@ -19,24 +19,27 @@
 		      (string->dom (get-output-string prolog)))))
 	  (display (concat "<" tag ">") prolog))
 	;; loop ends at EOF
-	(raise-stream-error 'xml-not-well-formed "stream ended prematurely"))))
+	(raise-exn:xmpp:stream
+         'xml-not-well-formed "stream ended prematurely"))))
     
   ;; Try to read an element from an input port (after any whitespace)
   ;; and return it as an <element> owned by the given document.  If
   ;; the stream end tag is read, return #f.  Otherwise raise a stream
-  ;; error.
+  ;; exception.
   (defmethod (read-xmpp-element (in <input-port>) (doc <document>))
     (skip-whitespace in)
     (cond ((equal? (peek-string 2 0 in) "</")
 	   (unless (equals? (substring (read-tag in) 1)
 			    (node-name (document-element doc)))
-	     (raise-stream-error 'xml-not-well-formed "end tag doesn't match"))
+	     (raise-exn:xmpp:stream
+              'xml-not-well-formed "end tag doesn't match"))
 	   ;; TO DO: read until eof
 	   (close-input-port in)
 	   #f)
 	  ((eof-object? (peek-char in))
 	   (close-input-port in)
-	   (raise-stream-error 'xml-not-well-formed "stream ended prematurely"))
+	   (raise-exn:xmpp:stream
+            'xml-not-well-formed "stream ended prematurely"))
 	  (else
 	   ;; TO DO: validate
 	   (read-dom/element doc in))))
@@ -50,8 +53,8 @@
       (unless (equals? char #\<)
 	(let ((avail (make-bytes (error-print-width))))
 	  (read-bytes-avail!* avail in)
-	  (raise-stream-error 'xml-not-well-formed
-			      (echos "not a tag:" :s- char avail)))))
+	  (raise-exn:xmpp:stream
+           'xml-not-well-formed (echos "not a tag:" :s- char avail)))))
     (list->string
      (list-of char (char <- each-char in) until (equals? char #\>))))
 

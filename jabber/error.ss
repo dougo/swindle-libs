@@ -68,20 +68,41 @@
     (next-sibling (first-child error)))
   ;; TO DO: xml:lang
 
-  (defmethod (make-error-stanza (exn <exn:fail>) (stream <xml-stream>))
+  (defmethod (make-stream-error (exn <exn:fail>) (stream <xml-stream>))
     (let* ((doc (document stream))
 	   (prefix (lookup-prefix doc *streams-ns*))
 	   (error (create-element-ns doc *streams-ns*
 				     (make-qname prefix "error")))
-	   (condition (exn:xmpp-condition exn))
-	   (text (exn:xmpp-text exn)))
+	   (condition (condition exn))
+	   (text (text exn)))
       (set-attribute-ns!
-       (append-child! error (create-element-ns doc *stream-error-ns* condition))
+       (append-child! error (create-element-ns doc *stream-error-ns*
+                                               (as <dom-string> condition)))
        *xmlns-ns* "xmlns" *stream-error-ns*)
       (when text
 	(let ((text-elt (create-element-ns doc *stream-error-ns* "text")))
 	  (append-child! error text-elt)
 	  (set-attribute-ns! text-elt *xmlns-ns* "xmlns" *stream-error-ns*)
+	  ;; TO DO: xml:lang
+	  (append-child! text-elt (create-text-node doc text))))
+      error))
+
+  ;; TO DO: refactor these!
+  (defmethod (make-stanza-error (exn <exn:fail>) (stream <xml-stream>))
+    (let* ((doc (document stream))
+	   (prefix (lookup-prefix doc *client-ns*))
+	   (error (create-element-ns doc *client-ns*
+				     (make-qname prefix "error")))
+	   (condition (condition exn))
+	   (text (text exn)))
+      (set-attribute-ns!
+       (append-child! error (create-element-ns doc *stanza-error-ns*
+                                               (as <dom-string> condition)))
+       *xmlns-ns* "xmlns" *stanza-error-ns*)
+      (when text
+	(let ((text-elt (create-element-ns doc *stanza-error-ns* "text")))
+	  (append-child! error text-elt)
+	  (set-attribute-ns! text-elt *xmlns-ns* "xmlns" *stanza-error-ns*)
 	  ;; TO DO: xml:lang
 	  (append-child! text-elt (create-text-node doc text))))
       error))

@@ -80,7 +80,8 @@
   (defclass <stream-handler> ())
   (defmethod (handle-stream-exn (handler <stream-handler>) (exn <exn:fail>))
     ((error-display-handler) (exn-message exn) exn))
-  (defmethod (handle-stanza-exn (handler <stream-handler>) (exn <exn:fail>))
+  (defmethod (handle-stanza-exn (handler <stream-handler>) (exn <exn:fail>)
+                                (stanza <jabber-element>))
     ((error-display-handler) (exn-message exn) exn))
   (defmethod (handle-element (handler <stream-handler>) (elt <jabber-element>))
     (void))
@@ -96,7 +97,7 @@
     (set! (document stream) (read-xmpp-document (port stream)))
     (let ((ns (namespace-uri (document-element (document stream)))))
       (unless (equals? ns *streams-ns*)
-	(raise-stream-error
+	(raise-exn:xmpp:stream
 	 'invalid-namespace "invalid streams namespace: ~a" ns)))
     (thread (thunk (serve stream))))
 
@@ -108,7 +109,8 @@
 		 (append-child! (document-element (document stream)) element))
 	       (with-handlers ((exn:fail?
 				(lambda (exn)
-				  (handle-stanza-exn (handler stream) exn))))
+				  (handle-stanza-exn
+                                   (handler stream) exn element))))
 		 (handle-element (handler stream) element))
 	       (serve stream))
 	      (else
