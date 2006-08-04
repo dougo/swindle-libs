@@ -3,6 +3,7 @@
 (module read "swindle.ss"
   (require (only (lib "13.ss" "srfi") string-prefix?))
   (require (lib "dom.ss" "dom"))
+  (require "dom.ss")
   (require "exn.ss")
   (provide (all-defined))
 
@@ -16,7 +17,8 @@
 	  (when (start-tag? tag)
 	    (display (concat "<" tag "/>") prolog)
 	    (return (parameterize ((xml:read-comments #t))
-		      (string->dom (get-output-string prolog)))))
+		      (string->dom (get-output-string prolog)
+                                   *the-jabber-dom-implementation*))))
 	  (display (concat "<" tag ">") prolog))
 	;; loop ends at EOF
 	(raise-exn:xmpp:stream
