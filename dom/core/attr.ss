@@ -31,7 +31,8 @@
   (defmethod (name (attr <attr>)) (node-name attr))
   (defmethod (specified? (attr <attr>)) #t)
   (defmethod (value (attr <attr>))
-    (apply concat (map-sequence node-value (child-nodes attr))))
+    (as <dom-string>
+        (apply concat (map-sequence node-value (child-nodes attr)))))
   (defmethod (set-value! (attr <attr>) (value <dom-string>))
     (dolist (child (child-list attr)) (remove-child! attr child))
     (append-child! attr (create-text-node (owner-document attr) value))
