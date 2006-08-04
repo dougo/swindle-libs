@@ -80,11 +80,11 @@
 	  (cond ((and (equals? (prefix attr) "xmlns")
 		      (equals? (local-name attr) prefx))
 		 ;; non default namespace
-		 (return (value attr))
-		((and (equals? (local-name attr) "xmlns")
+		 (return (value attr)))
+                ((and (equals? (local-name attr) "xmlns")
 		      (not prefx))
 		 ;; default namespace
-		 (return (value attr)))))))
+		 (return (value attr))))))
       (call-next-method)))
 
   (defmethod (lookup-namespace-uri (doc <document>) prefix)
