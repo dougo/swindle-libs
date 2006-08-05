@@ -7,9 +7,9 @@
 
   (define client #f)
 
-  (define (test)
-    (set! client (make <client> :address (as <jid> "dougo-test@volity.net")
-		       :log? #t :debug? #t))
+  (define (test jid password)
+    (set! client (make <client> :address (as <jid> jid) :log? #t :debug? #t))
+    (login client password)
     )
 
 )
