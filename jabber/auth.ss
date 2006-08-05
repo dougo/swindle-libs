@@ -13,7 +13,7 @@
   (defelementclass <auth-query> *auth-ns* "query")
 
   (defmethod (auth-fields (client <client>))
-    (iq client 'get (make-auth-query client)))
+    (auth-fields (iq client 'get (make-auth-query client))))
 
   (defmethod (make-auth-query (client <client>)
                               &key username password digest resource)
@@ -22,4 +22,7 @@
       (set! (attribute-ns query *xmlns-ns* "xmlns") *auth-ns*)
       query))
                        
+  (defmethod (auth-fields (query <auth-query>))
+    ;; TO DO: skip non-element child nodes
+    (list-of (as <symbol> (local-name child)) (child <- each-child query)))
 )
