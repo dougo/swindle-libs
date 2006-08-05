@@ -67,4 +67,7 @@
   (defmethod (handle-close (client <client>))
     (call-next-method)
     (close (initial-stream client)))
+
+  (defmethod (shutdown (client <client>))
+    (close (initial-stream client)))
 )
