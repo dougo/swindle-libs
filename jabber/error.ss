@@ -60,7 +60,7 @@
     (first-child error))
 
   (defmethod (error-text (error <jabber-error>))
-    (let ((node (error-text-node)))
+    (let ((node (error-text-node error)))
       ;; TO DO: factor into text-content (DOM Level 3)
       (and node (data (first-child node)))))
 
