@@ -13,9 +13,9 @@
   ;; Send an IQ request and wait for the response.  Return the
   ;; response payload, or raise an exception if the response is a
   ;; stanza error.
-  (defmethod (iq (client <client>) (type <symbol>) (payload <jabber-element>)
+  (defmethod (iq (client <client>) (t <symbol>) (p <jabber-element>)
                  &opt to)
-    (let ((request (make-iq-request client type payload to))
+    (let ((request (make-iq-request client t p to))
           (channel (make-channel)))
       (set! (iq-response-channel client (id request)) channel)
       (send client request)
