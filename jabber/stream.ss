@@ -46,7 +46,8 @@
 		      (first-child doc))
       (set! (attribute-ns stream *xmlns-ns* (make-qname "xmlns" stream-prefix))
 	    *streams-ns*)
-      (set! (attribute stream "xmlns") (as <dom-string> default-ns))
+      (set! (attribute-ns stream *xmlns-ns* "xmlns")
+            (as <dom-string> default-ns))
       (set! (to stream) to
 	    (from stream) from
 	    (id stream) id
