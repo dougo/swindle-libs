@@ -33,6 +33,10 @@
   (defmethod* (dom->string (node <node>))
     (with-output-to-string (thunk (write-dom node))))
 
+  (defmethod* (append-child!/xexpr (parent <node>) xexpr)
+    (append-child! parent (xexpr->dom xexpr parent)))
+  (defmethod (append-child!/xexpr (parent <node>) (xexpr = #f))
+    (void))
 
   ;; TO DO: split this into several methods
   (defmethod* (xml->dom xml &opt parent-or-dom)
