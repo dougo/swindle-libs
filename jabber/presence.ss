@@ -27,7 +27,6 @@
             (text-field presence 'show) show
             (text-field presence 'status) status
             (text-field presence 'priority) priority)
-      ;; TO DO: extensions
       presence))
 
 )

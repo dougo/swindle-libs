@@ -1,5 +1,6 @@
 (module jabber "swindle.ss"
   (require* "auth.ss")
+  (require* "caps.ss")
   (require* "client.ss")
   (require* "dom.ss")
   (require* "error.ss")
