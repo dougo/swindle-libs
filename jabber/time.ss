@@ -19,11 +19,12 @@
   ;; Keep an XMPP connection alive by asking it for the time every n
   ;; seconds (10 minutes by default).
   (defmethod (keep-alive (client <client>) &opt (n 600))
-    (thread (let loop ()
-              (sleep n)
-	      ;; TO DO: check that client is still connected
-              (query-time client)
-              (loop))))
+    (thread (rec loop
+              (thunk
+               (sleep n)
+               ;; TO DO: check that client is still connected
+               (query-time client)
+               (loop)))))
 
   (defelementclass <time-query> *time-ns* "query")
 
