@@ -1,17 +1,20 @@
 (module stream "swindle.ss"
-  (require (lib "dom.ss" "dom"))
   (require "dom.ss")
   (require "exn.ss")
   (require "read.ss")
+  (require (lib "dom.ss" "dom"))
+  (require (lib "pretty.ss"))
   (provide (all-defined))
 
   (define *streams-ns* "http://etherx.jabber.org/streams")
   (define *client-ns* "jabber:client")
 
   (defclass <xml-stream> ()
-    (port :accessor port :initarg :port)
-    (document :accessor document)
-    (log? :accessor log? :initarg :log? :initvalue #f))
+    (port :initarg :port)
+    (document)
+    (log? :initarg :log? :initvalue #f)
+    (debug? :initarg :debug? :initvalue #f)
+    :autoaccessors :slot)
 
   (defclass <output-stream> (<xml-stream>)
     (semaphore :reader semaphore :initializer (thunk (make-semaphore 1))))
@@ -64,7 +67,9 @@
 	  (write-dom element out)
 	  (flush-output out)
 	  (when (log? stream)
-	    (append-child! (document-element (document stream)) element)))))))
+	    (append-child! (document-element (document stream)) element))
+          (when (debug? stream)
+            (pretty-print (dom->xexpr element)) (newline)))))))
 
   (defmethod (close (stream <output-stream>))
     (call-with-semaphore
@@ -91,7 +96,8 @@
 
 
   (defclass <input-stream> (<xml-stream>)
-    (handler :accessor handler :initarg :handler :type <stream-handler>))
+    (handler :initarg :handler :type <stream-handler>)
+    :autoaccessors :slot)
 
   (defmethod (initialize (stream <input-stream>) initargs)
     (call-next-method)
@@ -108,6 +114,8 @@
 	(cond (element
 	       (when (log? stream)
 		 (append-child! (document-element (document stream)) element))
+               (when (debug? stream)
+                 (pretty-print (dom->xexpr element)) (newline))
 	       (with-handlers ((exn:fail?
 				(lambda (exn)
 				  (handle-stanza-exn
