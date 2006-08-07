@@ -16,6 +16,9 @@
 	      (domain-id jid)
 	      (if (resource-id jid) (concat "/" (resource-id jid)) ""))))
 
+  (add-as-method <jid> <immutable-string>
+    (lambda (jid) (as <immutable-string> (as <string> jid))))
+
   (add-as-method <string> <jid>
     (lambda (s)
       (regexp-case s
