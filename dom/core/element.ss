@@ -133,7 +133,7 @@
     (let* (((values prefix name) (parse-qname qname))
 	   (attr (attribute-node-ns element ns name)))
       (cond (attr
-	     (set! (prefix attr) prefix))
+             (when ns (set! (prefix attr) prefix)))
 	    (else
 	     (set! attr (create-attribute-ns (owner-document element) ns qname))
 	     (set-attribute-node-ns! element attr)))
