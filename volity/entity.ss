@@ -2,7 +2,15 @@
   (require (lib "jabber.ss" "jabber"))
   (provide (all-defined))
 
-  (defclass <entity> (<client>))
+  (defclass <entity> (<client>)
+    (password :type <string> :initarg :password)
+    :autoaccessors :slot)
+
+  (defmethod (initialize (entity <entity>) initargs)
+    (call-next-method)
+    (login entity (password entity))
+    (keep-alive entity)
+    (become-available entity))
 
   (defmethod (type-uri (entity <entity>))
     "http://volity.org/protocol/caps")
