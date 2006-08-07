@@ -16,6 +16,10 @@
     (address :type <jid> :initarg :address)
     (initial-stream :type <output-stream>)
     (response-stream :type <input-stream>)
+    (tcp-port :type <integer> :initarg :tcp-port :initvalue 5222)
+    (log? :type <boolean> :initarg :log? :initvalue #f)
+    (debug? :type <boolean> :initarg :debug? :initvalue #f)
+    (debug-raw? :type <boolean> :initarg :debug-raw? :initvalue #f)
     :autoaccessors :slot)
 
   (defmethod (hostname (client <client>))
@@ -27,17 +31,16 @@
       ;; Add a default resource ID.
       (set! (address client) (full (address client) "PLT")))
     (let* ((host (hostname client))
-	   (port (getarg initargs :tcp-port 5222))
-	   (log? (getarg initargs :log?))
-           (debug? (getarg initargs :debug?))
-	   ((values in out) (tcp-connect host port)))
-      (when debug?
+	   ((values in out) (tcp-connect host (tcp-port client))))
+      (when (debug-raw? client)
         ;; Copy the input stream to stderr.
         (set! in (log-input-port in)))
       (set! (initial-stream client)
-	    (make <output-stream> :port out :log? log? :to host))
+	    (make <output-stream> :port out :to host
+                  :log? (log? client) :debug? (debug? client)))
       (set! (response-stream client)
-	    (make <input-stream> :port in :log? log? :handler client))))
+	    (make <input-stream> :port in :handler client
+                  :log? (log? client) :debug? (debug? client)))))
 
   (defmethod (send (client <client>) (stanza <stanza>))
     (send-element (initial-stream client) stanza))
