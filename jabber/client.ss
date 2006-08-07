@@ -18,12 +18,15 @@
     (response-stream :type <input-stream>)
     :autoaccessors :slot)
 
+  (defmethod (hostname (client <client>))
+    (domain-id (address client)))
+
   (defmethod (initialize (client <client>) initargs)
     (call-next-method)
     (unless (full? (address client))
       ;; Add a default resource ID.
       (set! (address client) (full (address client) "PLT")))
-    (let* ((host (domain-id (address client)))
+    (let* ((host (hostname client))
 	   (port (getarg initargs :tcp-port 5222))
 	   (log? (getarg initargs :log?))
            (debug? (getarg initargs :debug?))
