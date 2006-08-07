@@ -9,6 +9,7 @@
   (require* "jid.ss")
   (require* "logging.ss")
   (require* "message.ss")
+  (require* "muc.ss")
   (require* "presence.ss")
   (require* "read.ss")
   (require* "stanza.ss")
