@@ -13,4 +13,5 @@
   (require* "read.ss")
   (require* "stanza.ss")
   (require* "stream.ss")
+  (require* "time.ss")
 )
