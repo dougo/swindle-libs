@@ -2,6 +2,7 @@
   (require* "auth.ss")
   (require* "caps.ss")
   (require* "client.ss")
+  (require* "disco.ss")
   (require* "dom.ss")
   (require* "error.ss")
   (require* "exn.ss")
