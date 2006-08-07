@@ -4,6 +4,7 @@
   (require "read.ss")
   (require (lib "dom.ss" "dom"))
   (require (lib "pretty.ss"))
+  (require (prefix xml: (lib "xml.ss" "xml")))
   (provide (all-defined))
 
   (define *streams-ns* "http://etherx.jabber.org/streams")
@@ -69,7 +70,8 @@
 	  (when (log? stream)
 	    (append-child! (document-element (document stream)) element))
           (when (debug? stream)
-            (pretty-print (dom->xexpr element)) (newline)))))))
+            (parameterize ((xml:xexpr-drop-empty-attributes #t))
+              (pretty-print (dom->xexpr element)) (newline))))))))
 
   (defmethod (close (stream <output-stream>))
     (call-with-semaphore
@@ -115,7 +117,8 @@
 	       (when (log? stream)
 		 (append-child! (document-element (document stream)) element))
                (when (debug? stream)
-                 (pretty-print (dom->xexpr element)) (newline))
+                 (parameterize ((xml:xexpr-drop-empty-attributes #t))
+                   (pretty-print (dom->xexpr element)) (newline)))
 	       (with-handlers ((exn:fail?
 				(lambda (exn)
 				  (handle-stanza-exn
