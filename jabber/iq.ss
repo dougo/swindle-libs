@@ -94,7 +94,7 @@
     (let ((type (type stanza)))
       (case type
 	((get set)
-	 (handle-iq-request client (payload stanza)))
+	 (handle-iq-request client (from stanza) (payload stanza)))
 	((result error)
 	 (handle-iq-response client stanza))
 	(else
@@ -102,7 +102,8 @@
 
   ;; Handle an IQ request payload received by a client.  Override this
   ;; for specific IQ request classes.
-  (defmethod (handle-iq-request (client <client>) (payload <jabber-element>))
+  (defmethod (handle-iq-request (client <client>) (from <string>)
+                                (payload <jabber-element>))
     (raise-exn:xmpp:stanza (parent-node payload) 'service-unavailable))
 
   ;; Handle an IQ response recieved by a client by passing it on to

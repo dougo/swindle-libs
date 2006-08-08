@@ -13,7 +13,8 @@
   (defelementclass <disco-info> *disco-info-ns* "query")
   (defelementclass <disco-items> *disco-items-ns* "query")
 
-  (defmethod (handle-iq-request (client <client>) (payload <disco-info>))
+  (defmethod (handle-iq-request (client <client>) (from <string>)
+                                (payload <disco-info>))
     (append-child!/xexpr payload '(identity ((category "client" "bot"))))
     payload)
 )
