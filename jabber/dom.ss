@@ -116,7 +116,7 @@
   (defmethod (set-text-field! (element <element>) (name <symbol>) value)
     (let ((node (or (text-field-node element name)
                     (append-child!/xexpr element `(,name)))))
-      (set! (text-content node) (as <dom-string> value))))
+      (set! (text-content node) (and value (as <dom-string> value)))))
 
 
   ;; Find the first child node of a particular type.
