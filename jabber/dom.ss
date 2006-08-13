@@ -117,4 +117,16 @@
     (let ((node (or (text-field-node element name)
                     (append-child!/xexpr element `(,name)))))
       (set! (text-content node) (as <dom-string> value))))
+
+
+  ;; Find the first child node of a particular type.
+  (defmethod (first-child-instance (elt <jabber-element>) (type <class>))
+    (find-if-iterator (lambda (child) (instance-of? child type))
+                      (each-child elt)))
+
+  ;; A list of children of a particular type.
+  (defmethod (child-instances (elt <jabber-element>) (type <class>))
+    (list-of child
+      (child <- each-child elt)
+      when (instance-of? child type)))
 )
