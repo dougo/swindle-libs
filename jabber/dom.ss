@@ -104,21 +104,17 @@
     (find-if-iterator
      (lambda (child)
        (and (instance-of? child <element>)
-            (not (prefix child))
-            (eq? name (as <symbol> (local-name child)))))
+            ;; TO DO: check namespace
+            (eq? name (as <symbol> (node-name child)))))
      (each-child element)))
 
   (defmethod (text-field (element <element>) (name <symbol>))
     (cond ((text-field-node element name)
-           => (lambda (node)
-                (if (has-child-nodes? node)
-                    (node-value (first-child node))
-                    "")))
+           => text-content)
           (else #f)))
 
   (defmethod (set-text-field! (element <element>) (name <symbol>) value)
-    (cond ((text-field-node element name)
-           => (lambda (node) (remove-child! element node))))
-    (when value
-      (append-child!/xexpr element `(,name ,(as <string> value)))))
+    (let ((node (or (text-field-node element name)
+                    (append-child!/xexpr element `(,name)))))
+      (set! (text-content node) (as <dom-string> value))))
 )
