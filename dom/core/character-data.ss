@@ -15,7 +15,7 @@
     (set! (data node) value))
   (defmethod (text-content (node <character-data>))
     (data node))
-  (defmethod (set-text-content! (node <character-data>) (value <dom-string>))
+  (defmethod (set-text-content! (node <character-data>) value)
     (set! (data node) value))
 
   (defbeforemethod (set-data! (node <character-data>) (data <dom-string>))

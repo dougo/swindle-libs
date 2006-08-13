@@ -16,9 +16,11 @@
         (apply concat
                (map-sequence text-content-for-parent (child-nodes node)))))
 
+  (defmethod (set-text-content! (node <text-container>) (value = #f))
+    (set-text-content! node ""))
   (defmethod (set-text-content! (node <text-container>) (value <dom-string>))
     (remove-children! node)
-    (when (and value (not (string-null? value)))
+    (unless (string-null? value)
       (append-child! node (create-text-node (owner-document node) value)))
     (void))
 )
