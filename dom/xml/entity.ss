@@ -7,6 +7,7 @@
   (require (only "../core/owned.ss" <owned>))
   (require (only "../core/contained.ss" <contained>))
   (require (only "../core/parent.ss" <parent>))
+  (require (only "../core/text-content.ss" <text-container>))
 
   (allow-child <entity>
 	       <element> <processing-instruction> <comment> <text>
@@ -17,7 +18,8 @@
   ;; TO DO: import-node
 
 
-  (defclass* <entity-impl> (<named> <owned> <contained> <parent> <entity>)
+  (defclass* <entity-impl>
+      (<named> <owned> <contained> <parent> <text-container> <entity>)
     (public-id :reader public-id :initarg :public-id :initvalue #f)
     (system-id :reader system-id :initarg :system-id :initvalue #f)
     (notation-name :reader notation-name :initarg :notation :initvalue #f))

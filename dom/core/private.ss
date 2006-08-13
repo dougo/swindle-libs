@@ -20,4 +20,5 @@
   (require* "node.ss")
   (require* "owned.ss")
   (require* "parent.ss")
+  (require* "text-content.ss")
 )

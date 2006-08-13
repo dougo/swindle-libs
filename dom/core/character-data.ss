@@ -5,12 +5,17 @@
   (require (only "readonly.ss" check-readonly))
   (require (only "owned.ss" <owned>))
   (require (only "child.ss" <child>))
+  (require (only "text-content.ss" text-content-for-parent))
   (require (only (lib "13.ss" "srfi") string-replace substring/shared))
 
   ;; TO DO: make a <valued> mixin
   (defmethod (node-value (node <character-data>))
     (data node))
   (defmethod (set-node-value! (node <character-data>) (value <dom-string>))
+    (set! (data node) value))
+  (defmethod (text-content (node <character-data>))
+    (data node))
+  (defmethod (set-text-content! (node <character-data>) (value <dom-string>))
     (set! (data node) value))
 
   (defbeforemethod (set-data! (node <character-data>) (data <dom-string>))
@@ -103,6 +108,8 @@
 
   (defmethod (clone-node (node <comment>) deep?)
     (create-comment (owner-document node) (data node)))
+
+  (defmethod (text-content-for-parent (node <comment>)) "")
 
   (defclass* <comment-impl> (<character-data-impl> <comment>))
 

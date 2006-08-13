@@ -17,6 +17,8 @@
   (defmethod (owner-document (node <node>)) #f)
   (defmethod (parent-node (node <node>)) #f)
   (defmethod (previous-sibling (node <node>)) #f)
+  (defmethod (text-content (node <node>)) #f)
+  (defmethod (set-text-content! (node <node>) (value <dom-string>)) (void))
 
 
   ;; Common functionality for append-child! and insert-before!.  This

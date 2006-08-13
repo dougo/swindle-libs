@@ -9,6 +9,7 @@
   (require (only "../core/owned.ss" <owned>))
   (require (only "../core/child.ss" <child>))
   (require (only "../core/parent.ss" <parent>))
+  (require (only "../core/text-content.ss" <text-container>))
 
   (defmethod (create-entity-reference (document <xml-document>)
 				      (name <dom-string>))
@@ -29,5 +30,5 @@
 
 
   (defclass* <entity-reference-impl>
-      (<named> <owned> <child> <parent> <entity-reference>))
+      (<named> <owned> <child> <parent> <text-container> <entity-reference>))
 )

@@ -2,6 +2,7 @@
   (require "interfaces.ss")
   (require (only "owned.ss" <owned>))
   (require (only "parent.ss" <parent>))
+  (require (only "text-content.ss" <text-container>))
   (require (only "node.ss" add-child! allow-child? allow-child))
   (require (only "extra.ss" child-list))
 
@@ -29,5 +30,6 @@
     (create-document-fragment (owner-document document-fragment)))
 
 
-  (defclass* <document-fragment-impl> (<owned> <parent> <document-fragment>))
+  (defclass* <document-fragment-impl>
+      (<owned> <parent> <text-container> <document-fragment>))
 )

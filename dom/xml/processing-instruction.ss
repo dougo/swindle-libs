@@ -8,6 +8,7 @@
   (require (only "../core/named.ss" <named>))
   (require (only "../core/owned.ss" <owned>))
   (require (only "../core/child.ss" <child>))
+  (require (only "../core/text-content.ss" text-content-for-parent))
 
   (defmethod (create-processing-instruction (document <xml-document>)
 					    (target <dom-string>)
@@ -26,6 +27,11 @@
   (defmethod (set-node-value! (node <processing-instruction>)
 			      (value <dom-string>))
     (set! (data node) value))
+  (defmethod (text-content (node <processing-instruction>))
+    (data node))
+  (defmethod (set-text-content! (node <processing-instruction>)
+                                (value <dom-string>))
+    (set! (data node) value))
 
   (defmethod (clone-node (node <processing-instruction>) deep?)
     (create-processing-instruction (owner-document node)
@@ -35,6 +41,8 @@
     (node-name pi))
   (defbeforemethod (set-data! (pi <processing-instruction>) (data <dom-string>))
     (check-readonly pi))
+
+  (defmethod (text-content-for-parent (pi <processing-instruction>)) "")
 
   (defclass* <processing-instruction-impl>
       (<named> <owned> <child> <processing-instruction>)

@@ -7,6 +7,7 @@
   (require (only "owned.ss" <owned> check-ownership))
   (require (only "child.ss" <child>))
   (require (only "parent.ss" <parent>))
+  (require (only "text-content.ss" <text-container>))
   (require (only "collections.ss" <named-node-hash-table> <node-list-impl>))
   (require (only "extra.ss" each-descendant next-pre-order parse-qname
                  normalize-children!))
@@ -65,7 +66,8 @@
       old-attr))
 
 
-  (defclass* <element-impl> (<named> <owned> <child> <parent> <element>)
+  (defclass* <element-impl>
+      (<named> <owned> <child> <parent> <text-container> <element>)
     (attributes :reader attributes))
   (defmethod (initialize (element <element-impl>) initargs)
     (call-next-method)

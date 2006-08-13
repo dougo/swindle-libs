@@ -7,8 +7,8 @@
   (require (only "owned.ss" <owned>))
   (require (only "contained.ss" <contained> container))
   (require (only "parent.ss" <parent>))
+  (require (only "text-content.ss" <text-container>))
   (require (only "collections.ss" <named-node-map-impl>))
-  (require (only "extra.ss" child-list))
   (require (only "namespaced.ss" <namespaced>))
 
   (defmethod (create-attribute (document <document>) (name <dom-string>))
@@ -30,16 +30,12 @@
 
   (defmethod (name (attr <attr>)) (node-name attr))
   (defmethod (specified? (attr <attr>)) #t)
-  (defmethod (value (attr <attr>))
-    (as <dom-string>
-        (apply concat (map-sequence node-value (child-nodes attr)))))
+  (defmethod (value (attr <attr>)) (text-content attr))
   (defmethod (set-value! (attr <attr>) (value <dom-string>))
-    (dolist (child (child-list attr)) (remove-child! attr child))
-    (append-child! attr (create-text-node (owner-document attr) value))
-    (void))
+    (set! (text-content attr) value))
 
-
-  (defclass* <attr-impl> (<named> <owned> <contained> <parent> <attr>))
+  (defclass* <attr-impl>
+      (<named> <owned> <contained> <parent> <text-container> <attr>))
 
   (defbeforemethod (set-keyed-item! (nodes <named-node-map-impl>)
 				    (new-attr <attr-impl>))
