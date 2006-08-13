@@ -13,6 +13,7 @@
   (require* "muc.ss")
   (require* "presence.ss")
   (require* "read.ss")
+  (require* "rpc.ss")
   (require* "stanza.ss")
   (require* "stream.ss")
   (require* "time.ss")
