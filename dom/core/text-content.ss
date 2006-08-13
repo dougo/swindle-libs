@@ -2,7 +2,7 @@
   (require "types.ss")
   (require "interfaces.ss")
   (require "exn.ss")
-  (require (only "extra.ss" child-list))
+  (require (only "extra.ss" remove-children!))
   (require (only (lib "13.ss" "srfi") string-null?))
 
   (defmethod* (text-content-for-parent (node <node>))
@@ -17,7 +17,7 @@
                (map-sequence text-content-for-parent (child-nodes node)))))
 
   (defmethod (set-text-content! (node <text-container>) (value <dom-string>))
-    (dolist (child (child-list node)) (remove-child! node child))
+    (remove-children! node)
     (when (and value (not (string-null? value)))
       (append-child! node (create-text-node (owner-document node) value)))
     (void))

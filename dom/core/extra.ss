@@ -89,6 +89,11 @@
     (as <list> (child-nodes node)))
 
 
+  ;; Remove all child nodes of a node.
+  (defmethod* (remove-children! (node <node>))
+    (dolist (child (child-list node)) (remove-child! node child)))
+
+
   ;; This makes node collections into sequences:
   (add-ref-method <node-list> item)
   (add-ref-method <named-node-map> item)
