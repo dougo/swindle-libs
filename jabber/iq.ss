@@ -10,12 +10,13 @@
   (require "stanza.ss")
   (provide (all-defined))
 
-  ;; Send an IQ request and wait for the response.  Return the
-  ;; response payload, or raise an exception if the response is a
-  ;; stanza error.
+  ;; Send an IQ request of type t (get or set) with payload p to a
+  ;; target (the XMPP server by default) and wait for the response.
+  ;; Return the response payload, or raise an exception if the
+  ;; response is a stanza error.
   (defmethod (iq (client <client>) (t <symbol>) (p <jabber-element>)
-                 &opt to)
-    (let ((request (make-iq-request client t p to))
+                 &opt target)
+    (let ((request (make-iq-request client t p target))
           (channel (make-channel)))
       (set! (iq-response-channel client (id request)) channel)
       (send client request)
