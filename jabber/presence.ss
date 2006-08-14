@@ -29,4 +29,10 @@
             (text-field presence 'priority) priority)
       presence))
 
+  (defmethod (handle-element (client <client>) (stanza <presence>))
+    (when (eq? (type stanza) 'subscribe)
+      ;; Accept all subscription requests.
+      (send client (make-presence client :to (from stanza) :type 'subscribed)))
+    )
+
 )
