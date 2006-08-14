@@ -10,6 +10,9 @@
 
   (define *muc-ns* "http://jabber.org/protocol/muc")
 
+  ;; A client representation of a MUC.  The MUC may or may not exist
+  ;; on the service when the <muc> object is created.  Entering a
+  ;; <muc> creates the MUC if needed.
   (defclass <muc> ()
     (client :type <client>)
     (room-id :type <string>)
@@ -20,9 +23,14 @@
                              (node-id (address (getarg args :client)))))
     :autoinitargs #t :autoaccessors :slot)
 
+  ;; The address (JID) of the client on the MUC.
   (defmethod (address (muc <muc>))
     (make <jid> :node (room-id muc) :domain (service muc)
           :resource (nickname muc)))
+
+  ;; The address (JID) of the MUC itself.
+  (defmethod (room-address (muc <muc>))
+    (bare (address muc)))
 
   ;; The list of mucs in which the client is currently an occupant.
   (define *mucs* (make-hash-table 'weak))
@@ -48,7 +56,9 @@
   (defmethod (enter (muc <muc>))
     (unless (occupied? muc)
       (send (client muc) (make-presence muc))
-      (add-muc! (client muc) muc)))
+      (add-muc! (client muc) muc)
+      ;; TO DO: configure the room if it was just created
+      ))
 
   (defmethod (exit (muc <muc>))
     (when (occupied? muc)
