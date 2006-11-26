@@ -9,8 +9,8 @@
 
   ;; TO DO: implement DOM Level 3 Load/Save
 
-  (defmethod* (read-dom (dom <dom-implementation>) . port)
-    (xml->dom (xml:read-xml . port) dom))
+  (defmethod* (read-dom &optional dom port)
+    (xml->dom (xml:read-xml port) dom))
   (defmethod* (read-dom/element (parent <node>) . port)
     (xml->dom (xml:read-xml/element . port) parent))
   (defmethod* (write-dom (doc <document>) . port)
@@ -26,7 +26,7 @@
   (defmethod* (dom->xexpr (node <node>))
     (xml:xml->xexpr (dom->xml node)))
 
-  (defmethod* (string->dom (s <string>) (dom <dom-implementation>))
+  (defmethod* (string->dom (s <string>) &optional dom)
     (read-dom dom (open-input-string s)))
   (defmethod* (string->dom/element (s <string>) (parent <node>))
     (read-dom/element parent (open-input-string s)))
@@ -91,6 +91,8 @@
        (and dtd (xml:external-dtd-system dtd)))))
 
   (defmethod* (xml:element->dom xml (parent <node>))
+    ;; TO DO: I think there's a bug here, the namespace is looked up
+    ;; before the parent has been added to the tree.  Check this!
     (let* ((doc (or (owner-document parent) parent))
 	   (qname (as <dom-string> (xml:element-name xml)))
 	   (ns (xml:node-ns xml parent qname))
