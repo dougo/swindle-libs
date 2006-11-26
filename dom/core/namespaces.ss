@@ -64,7 +64,7 @@
 
   (defmethod (default-namespace? (node <node>) (ns-uri <dom-string>))
     (let ((ancestor (ancestor-element node)))
-      (and ancestor-element (default-namespace? ancestor-element ns-uri))))
+      (and ancestor (default-namespace? ancestor ns-uri))))
     
 
   ;; B.4 Namespace URI Lookup
