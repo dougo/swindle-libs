@@ -3,5 +3,4 @@
   (require* "interfaces.ss")
   (require* "extra.ss")
   (require "private.ss")		;for side-effect only
-  (provide *the-dom-implementation*)
 )
