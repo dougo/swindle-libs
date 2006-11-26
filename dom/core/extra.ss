@@ -177,6 +177,8 @@
   ;; Find the first ancestor of node (not including node) that is an
   ;; element.  Used by the namespaces algorithms in namespaces.ss.
   (defmethod* (ancestor-element (node <node>))
-    (find-if-iterator (lambda (ancestor) (instance-of? ancestor <element>))
-		      (each-ancestor (parent-node node))))
+    (let ((parent (parent-node node)))
+      (and parent (find-if-iterator
+                   (lambda (ancestor) (instance-of? ancestor <element>))
+                   (each-ancestor parent)))))
 )
