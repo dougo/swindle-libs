@@ -1,6 +1,8 @@
+;; XMPP presence stanzas.
+
 (module presence "swindle.ss"
   (require "client.ss")
-  (require "dom.ss") 
+  (require "dom.ss")
   (require "stream.ss")
   (require "stanza.ss")
   (require (lib "dom.ss" "dom"))
@@ -31,8 +33,11 @@
 
   (defmethod (handle-element (client <client>) (stanza <presence>))
     (when (eq? (type stanza) 'subscribe)
-      ;; Accept all subscription requests.
-      (send client (make-presence client :to (from stanza) :type 'subscribed)))
+      (handle-subscription-request client stanza))
+    ;; TO DO: other handlers, e.g. MUC roster
     )
 
+  (defmethod (handle-subscription-request (client <client>) (req <presence>))
+    ;; Accept all subscription requests.
+    (send client (make-presence client :to (from req) :type 'subscribed)))
 )
