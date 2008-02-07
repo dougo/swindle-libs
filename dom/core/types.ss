@@ -1,15 +1,15 @@
-(module types "../swindle.ss"
-  (provide (all-defined))
+#lang swindle
 
-  ;; valuetype DOMString sequence<unsigned short>
-  (define <dom-string> <immutable-string>)
+(provide (all-defined))
 
-  ;; typedef unsigned long long DOMTimeStamp
-  (define <dom-time-stamp> <exact-integer>)
+;; valuetype DOMString sequence<unsigned short>
+(define <dom-string> <immutable-string>)
 
-  ;; typedef any DOMUserData
-  (define <dom-user-data> <top>)
+;; typedef unsigned long long DOMTimeStamp
+(define <dom-time-stamp> <exact-integer>)
 
-  ;; typedef Object DOMObject
-  (define <dom-object> <object>)
-)
+;; typedef any DOMUserData
+(define <dom-user-data> <top>)
+
+;; typedef Object DOMObject
+(define <dom-object> <object>)

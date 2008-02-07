@@ -1,6 +1,8 @@
-(module dom "swindle.ss"
-  (require* "core/core.ss")
-  (require* "xml/xml.ss")
-  (require* "convert.ss")
-  (require "private.ss")		;for side-effect only
-)
+#lang swindle
+
+(require "swindle.ss")
+(require* "core/core.ss")
+(require* "xml/xml.ss")
+(require* "convert.ss")
+(require "private.ss")		;for side-effect only
+

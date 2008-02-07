@@ -1,11 +1,10 @@
-(module swindle (lib "swindle.ss" "swindle")
-  (provide (all-from (lib "swindle.ss" "swindle")))
+#lang swindle
 
-  ;; TO DO: allow other require-specs
-  (defsubst* (require* module-name ...)
-    (begin (require module-name) ...
-	   (provide (all-from module-name)) ...))
+;; TO DO: allow other require-specs
+(defsubst* (require* module-name ...)
+  (begin (require module-name) ...
+         (provide (all-from module-name)) ...))
 
-  (require* "extra.ss")
-  (require* "interface.ss")
-)
+(require* "extra.ss")
+(require* "interface.ss")
+

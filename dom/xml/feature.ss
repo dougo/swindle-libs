@@ -1,6 +1,8 @@
-(module feature "../swindle.ss"
-  (require (only "../core/dom-implementation.ss" declare-feature))
+#lang swindle
 
-  (declare-feature "XML" "1.0")
-  (declare-feature "XML" "2.0")
-)
+(require "../swindle.ss")
+(require (only "../core/dom-implementation.ss" declare-feature))
+
+(declare-feature "XML" "1.0")
+(declare-feature "XML" "2.0")
+

@@ -1,5 +1,7 @@
-(module feature "../swindle.ss"
-  (require (only "dom-implementation.ss" declare-feature))
+#lang swindle
 
-  (declare-feature "Core" "2.0")
-)
+(require "../swindle.ss")
+(require (only "dom-implementation.ss" declare-feature))
+
+(declare-feature "Core" "2.0")
+

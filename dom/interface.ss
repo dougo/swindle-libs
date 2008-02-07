@@ -1,50 +1,50 @@
-(module interface (lib "swindle.ss" "swindle")
-  (require "extra.ss")
+#lang swindle
 
-  (defclass* <interface> (<class>))
+(require "extra.ss")
 
-  (defmethod (make (class <interface>) . initargs)
-    (error 'make "~v can't be instantiated" class))
+(defclass* <interface> (<class>))
 
-  (defmethod* (interface-of x) #f)
+(defmethod (make (class <interface>) . initargs)
+  (error 'make "~v can't be instantiated" class))
 
-  ;; TO DO: constants?
-  (defsubst* (definterface interface supers method ...)
-    (begin
-      (defclass interface supers :metaclass <interface>)
-      (defmethod (interface-of (x interface)) interface)
-      (definterfacemethods interface method ...)))
+(defmethod* (interface-of x) #f)
 
-  (defsubst* (definterface* interface supers method ...)
-    (begin
-      (definterface interface supers method ...)
-      (provide interface)
-      (provide-interface-methods method ...)))
+;; TO DO: constants?
+(defsubst* (definterface interface supers method ...)
+  (begin
+    (defclass interface supers :metaclass <interface>)
+    (defmethod (interface-of (x interface)) interface)
+    (definterfacemethods interface method ...)))
 
-  (defsubst* (definterfacemethods interface (generic . formals) ...)
-    (begin
-      (definterfacemethod interface (generic . formals))
-      ...))
+(defsubst* (definterface* interface supers method ...)
+  (begin
+    (definterface interface supers method ...)
+    (provide interface)
+    (provide-interface-methods method ...)))
 
-  (defsubst* (definterfacemethods* interface method ...)
-    (begin
-      (definterfacemethods interface method ...)
-      (provide-interface-methods method ...)))
+(defsubst* (definterfacemethods interface (generic . formals) ...)
+  (begin
+    (definterfacemethod interface (generic . formals))
+    ...))
 
-  (defsubst* (provide-interface-methods (generic . formals) ...)
-    (provide generic ...))
+(defsubst* (definterfacemethods* interface method ...)
+  (begin
+    (definterfacemethods interface method ...)
+    (provide-interface-methods method ...)))
 
-  (defsubst* (definterfacemethod interface (generic . formals))
-    (begin
-      (defgeneric (generic this . formals))
-;      (defmethod (generic (this interface) . formals)
-;	(error 'generic "interface method not implemented: ~v"
+(defsubst* (provide-interface-methods (generic . formals) ...)
+  (provide generic ...))
+
+(defsubst* (definterfacemethod interface (generic . formals))
+  (begin
+    (defgeneric (generic this . formals))
+;    (defmethod (generic (this interface) . formals)
+;      (error 'generic "interface method not implemented: ~v"
 ;	       '((this interface) . formals)))
 ;	)))
-      ))
+    ))
 
-  (defsubst* (definterfacemethod* interface (generic . formals))
-    (begin
-      (definterfacemethod interface (generic . formals))
-      (provide generic)))
-)
+(defsubst* (definterfacemethod* interface (generic . formals))
+  (begin
+    (definterfacemethod interface (generic . formals))
+    (provide generic)))

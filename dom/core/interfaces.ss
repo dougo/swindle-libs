@@ -1,402 +1,403 @@
-(module interfaces "../swindle.ss"
-  (require "types.ss")
-  (provide (all-defined))
+#lang swindle
 
-  ;; exception DOMException
-  (defgeneric (exn:dom? v))
-  ;; unsigned short code
-  (defgeneric (exn:dom-code exn))
-  ;; // ExceptionCode
-  (define <exception-code> <exact-integer>)
-  ;; const unsigned short INDEX_SIZE_ERR                 = 1
-  (define *index-size-err* 1)
-  ;; const unsigned short DOMSTRING_SIZE_ERR             = 2
-  (define *domstring-size-err* 2)
-  ;; const unsigned short HIERARCHY_REQUEST_ERR          = 3
-  (define *hierarchy-request-err* 3)
-  ;; const unsigned short WRONG_DOCUMENT_ERR             = 4
-  (define *wrong-document-err* 4)
-  ;; const unsigned short INVALID_CHARACTER_ERR          = 5
-  (define *invalid-character-err* 5)
-  ;; const unsigned short NO_DATA_ALLOWED_ERR            = 6
-  (define *no-data-allowed-err* 6)
-  ;; const unsigned short NO_MODIFICATION_ALLOWED_ERR    = 7
-  (define *no-modification-allowed-err* 7)
-  ;; const unsigned short NOT_FOUND_ERR                  = 8
-  (define *not-found-err* 8)
-  ;; const unsigned short NOT_SUPPORTED_ERR              = 9
-  (define *not-supported-err* 9)
-  ;; const unsigned short INUSE_ATTRIBUTE_ERR            = 10
-  (define *inuse-attribute-err* 10)
-  ;; const unsigned short INVALID_STATE_ERR              = 11
-  (define *invalid-state-err* 11)
-  ;; const unsigned short SYNTAX_ERR                     = 12
-  (define *syntax-err* 12)
-  ;; const unsigned short INVALID_MODIFICATION_ERR       = 13
-  (define *invalid-modification-err* 13)
-  ;; const unsigned short NAMESPACE_ERR                  = 14
-  (define *namespace-err* 14)
-  ;; const unsigned short INVALID_ACCESS_ERR             = 15
-  (define *invalid-access-err* 15)
-  ;; const unsigned short VALIDATION_ERR                 = 16
-  (define *validation-err* 16)
-  ;; const unsigned short TYPE_MISMATCH_ERR              = 17
-  (define *type-mismatch-err* 17)
+(require "../swindle.ss")
+(require "types.ss")
+(provide (all-defined))
+
+;; exception DOMException
+(defgeneric (exn:dom? v))
+;; unsigned short code
+(defgeneric (exn:dom-code exn))
+;; // ExceptionCode
+(define <exception-code> <exact-integer>)
+;; const unsigned short INDEX_SIZE_ERR                 = 1
+(define *index-size-err* 1)
+;; const unsigned short DOMSTRING_SIZE_ERR             = 2
+(define *domstring-size-err* 2)
+;; const unsigned short HIERARCHY_REQUEST_ERR          = 3
+(define *hierarchy-request-err* 3)
+;; const unsigned short WRONG_DOCUMENT_ERR             = 4
+(define *wrong-document-err* 4)
+;; const unsigned short INVALID_CHARACTER_ERR          = 5
+(define *invalid-character-err* 5)
+;; const unsigned short NO_DATA_ALLOWED_ERR            = 6
+(define *no-data-allowed-err* 6)
+;; const unsigned short NO_MODIFICATION_ALLOWED_ERR    = 7
+(define *no-modification-allowed-err* 7)
+;; const unsigned short NOT_FOUND_ERR                  = 8
+(define *not-found-err* 8)
+;; const unsigned short NOT_SUPPORTED_ERR              = 9
+(define *not-supported-err* 9)
+;; const unsigned short INUSE_ATTRIBUTE_ERR            = 10
+(define *inuse-attribute-err* 10)
+;; const unsigned short INVALID_STATE_ERR              = 11
+(define *invalid-state-err* 11)
+;; const unsigned short SYNTAX_ERR                     = 12
+(define *syntax-err* 12)
+;; const unsigned short INVALID_MODIFICATION_ERR       = 13
+(define *invalid-modification-err* 13)
+;; const unsigned short NAMESPACE_ERR                  = 14
+(define *namespace-err* 14)
+;; const unsigned short INVALID_ACCESS_ERR             = 15
+(define *invalid-access-err* 15)
+;; const unsigned short VALIDATION_ERR                 = 16
+(define *validation-err* 16)
+;; const unsigned short TYPE_MISMATCH_ERR              = 17
+(define *type-mismatch-err* 17)
 
 
-  ;; TO DO: DOMStringList, NameList, DOMImplementationList,
-  ;; DOMImplementationSource, other Level 3 stuff.
+;; TO DO: DOMStringList, NameList, DOMImplementationList,
+;; DOMImplementationSource, other Level 3 stuff.
 
-  ;; interface DOMImplementation
-  (definterface <dom-implementation> ()
-    ;; boolean hasFeature(in DOMString feature, in DOMString version)
-    (has-feature? (feature <dom-string>) &opt version)
-    ;; DocumentType createDocumentType(in DOMString qualifiedName,
-    ;;                                 in DOMString publicId,
-    ;;                                 in DOMString systemId)
-    ;;              raises(DOMException)
-    (create-document-type (qualified-name <dom-string>)
-			  (public-id <dom-string>)
-			  (system-id <dom-string>))
-    ;; Document createDocument(in DOMString namespaceURI,
-    ;;                         in DOMString qualifiedName,
-    ;;                         in DocumentType doctype)
-    ;;          raises(DOMException)
-    (create-document namespace-uri	;may be #f
-		     (qualified-name <dom-string>)
-		     doctype)		;may be #f
-    ;; TO DO: getFeature
-    )
+;; interface DOMImplementation
+(definterface <dom-implementation> ()
+  ;; boolean hasFeature(in DOMString feature, in DOMString version)
+  (has-feature? (feature <dom-string>) &opt version)
+  ;; DocumentType createDocumentType(in DOMString qualifiedName,
+  ;;                                 in DOMString publicId,
+  ;;                                 in DOMString systemId)
+  ;;              raises(DOMException)
+  (create-document-type (qualified-name <dom-string>)
+                        (public-id <dom-string>)
+                        (system-id <dom-string>))
+  ;; Document createDocument(in DOMString namespaceURI,
+  ;;                         in DOMString qualifiedName,
+  ;;                         in DocumentType doctype)
+  ;;          raises(DOMException)
+  (create-document namespace-uri	;may be #f
+                   (qualified-name <dom-string>)
+                   doctype)		;may be #f
+  ;; TO DO: getFeature
+  )
 
-  ;; interface UserDataHandler
-  (definterface <user-data-handler> ()
-    ;; void handle (in unsigned short operation, in DOMString key,
-    ;;              in DOMUserData data, in Node src, in Node dst)
-    (handle (operation <operation-type>) (key <dom-string>)
-	    (data <dom-user-data>) (src <node>) (dst <node>))
-    )
+;; interface UserDataHandler
+(definterface <user-data-handler> ()
+  ;; void handle (in unsigned short operation, in DOMString key,
+  ;;              in DOMUserData data, in Node src, in Node dst)
+  (handle (operation <operation-type>) (key <dom-string>)
+          (data <dom-user-data>) (src <node>) (dst <node>))
+  )
 
-  ;; [Document and DocumentFragment are declared below Node.]
+;; [Document and DocumentFragment are declared below Node.]
 
-  ;; // NodeType
-  (define <node-type> <exact-integer>)
-  ;; const unsigned short ELEMENT_NODE                   = 1
-  (define *element-node* 1)
-  ;; const unsigned short ATTRIBUTE_NODE                 = 2
-  (define *attribute-node* 2)
-  ;; const unsigned short TEXT_NODE                      = 3
-  (define *text-node* 3)
-  ;; const unsigned short CDATA_SECTION_NODE             = 4
-  (define *cdata-section-node* 4)
-  ;; const unsigned short ENTITY_REFERENCE_NODE          = 5
-  (define *entity-reference-node* 5)
-  ;; const unsigned short ENTITY_NODE                    = 6
-  (define *entity-node* 6)
-  ;; const unsigned short PROCESSING_INSTRUCTION_NODE    = 7
-  (define *processing-instruction-node* 7)
-  ;; const unsigned short COMMENT_NODE                   = 8
-  (define *comment-node* 8)
-  ;; const unsigned short DOCUMENT_NODE                  = 9
-  (define *document-node* 9)
-  ;; const unsigned short DOCUMENT_TYPE_NODE             = 10
-  (define *document-type-node* 10)
-  ;; const unsigned short DOCUMENT_FRAGMENT_NODE         = 11
-  (define *document-fragment-node* 11)
-  ;; const unsigned short NOTATION_NODE                  = 12
-  (define *notation-node* 12)
+;; // NodeType
+(define <node-type> <exact-integer>)
+;; const unsigned short ELEMENT_NODE                   = 1
+(define *element-node* 1)
+;; const unsigned short ATTRIBUTE_NODE                 = 2
+(define *attribute-node* 2)
+;; const unsigned short TEXT_NODE                      = 3
+(define *text-node* 3)
+;; const unsigned short CDATA_SECTION_NODE             = 4
+(define *cdata-section-node* 4)
+;; const unsigned short ENTITY_REFERENCE_NODE          = 5
+(define *entity-reference-node* 5)
+;; const unsigned short ENTITY_NODE                    = 6
+(define *entity-node* 6)
+;; const unsigned short PROCESSING_INSTRUCTION_NODE    = 7
+(define *processing-instruction-node* 7)
+;; const unsigned short COMMENT_NODE                   = 8
+(define *comment-node* 8)
+;; const unsigned short DOCUMENT_NODE                  = 9
+(define *document-node* 9)
+;; const unsigned short DOCUMENT_TYPE_NODE             = 10
+(define *document-type-node* 10)
+;; const unsigned short DOCUMENT_FRAGMENT_NODE         = 11
+(define *document-fragment-node* 11)
+;; const unsigned short NOTATION_NODE                  = 12
+(define *notation-node* 12)
 
-  ;; interface Node
-  (definterface <node> ()
-    ;; readonly attribute DOMString nodeName
-    (node-name)
-    ;; attribute DOMString nodeValue // raises(DOMException) on setting
-    ;;                               // raises(DOMException) on retrieval
-    (node-value)
-    (set-node-value! (new-value <dom-string>))
-    ;; readonly attribute unsigned short nodeType
-    (node-type)
-    ;; readonly attribute Node parentNode
-    (parent-node)
-    ;; readonly attribute NodeList childNodes
-    (child-nodes)
-    ;; readonly attribute Node firstChild
-    (first-child)
-    ;; readonly attribute Node lastChild
-    (last-child)
-    ;; readonly attribute Node previousSibling
-    (previous-sibling)
-    ;; readonly attribute Node nextSibling
-    (next-sibling)
-    ;; readonly attribute NamedNodeMap attributes
-    (attributes)
-    ;; readonly attribute Document ownerDocument
-    (owner-document)
-    ;; Node insertBefore(in Node newChild, in Node refChild)
-    ;;      raises(DOMException)
-    (insert-before! (new-child <node>) ref-child) ;ref-child may be #f
-    ;; Node replaceChild(in Node newChild, in Node oldChild)
-    ;;      raises(DOMException)
-    (replace-child! (new-child <node>) (old-child <node>))
-    ;; Node removeChild(in Node oldChild) raises(DOMException)
-    (remove-child! (old-child <node>))
-    ;; Node appendChild(in Node newChild) raises(DOMException)
-    (append-child! (new-child <node>))
-    ;; boolean hasChildNodes()
-    (has-child-nodes?)
-    ;; Node cloneNode(in boolean deep) raises(DOMException)
-    (clone-node deep?)
-    ;; void normalize()
-    (normalize!)
-    ;; boolean isSupported(in DOMString feature, in DOMString version)
-    (supported? (feature <dom-string>) &opt version)
-    ;; readonly attribute DOMString namespaceURI
-    (namespace-uri)
-    ;; attribute DOMString prefix // raises(DOMException) on setting
-    (prefix)
-    (set-prefix! value)			;may be #f
-    ;; readonly attribute DOMString localName
-    (local-name)
-    ;; boolean hasAttributes()
-    (has-attributes?)
-    ;; unsigned short compareDocumentPosition(in Node other)
-    ;;                raises(DOMException)
-    (compare-document-position (other <node>))
-    ;; attribute DOMString textContent // raises(DOMException) on setting
-    ;;                                 // raises(DOMException) on retrieval
-    (text-content)
-    (set-text-content! value)		;<dom-string> or #f
-    ;; boolean isSameNode(in Node other)
-    (same-node? (other <node>))
-    ;; DOMString lookupPrefix(in DOMString namespaceURI)
-    (lookup-prefix (namespace-uri <dom-string>))
-    ;; boolean isDefaultNamespace(in DOMString namespaceURI)
-    (default-namespace? prefix)		;<dom-string> or #f
-    ;; boolean lookupNamespaceURI(in DOMString prefix)
-    (lookup-namespace-uri prefix)	;<dom-string> or #f
-    ;; boolean isEqualNode(in Node arg)
-    (equal-node? (arg <node>))
-    ;; DOMObject getFeature(in DOMString feature, in DOMString version)
-    (feature (feature <dom-string>) version) ;<dom-string> or #f
-    ;; DOMUserData setUserData(in DOMString key, in DOMUserData data,
-    ;;                         in UserDataHandler handler)
-    (set-user-data! (key <dom-string>) (data <dom-user-data>)
-		    (handler <user-data-handler>))
-    ;; DOMUserData getUserData(in DOMString key)
-    (user-data (key <dom-string>))
-    )
+;; interface Node
+(definterface <node> ()
+  ;; readonly attribute DOMString nodeName
+  (node-name)
+  ;; attribute DOMString nodeValue // raises(DOMException) on setting
+  ;;                               // raises(DOMException) on retrieval
+  (node-value)
+  (set-node-value! (new-value <dom-string>))
+  ;; readonly attribute unsigned short nodeType
+  (node-type)
+  ;; readonly attribute Node parentNode
+  (parent-node)
+  ;; readonly attribute NodeList childNodes
+  (child-nodes)
+  ;; readonly attribute Node firstChild
+  (first-child)
+  ;; readonly attribute Node lastChild
+  (last-child)
+  ;; readonly attribute Node previousSibling
+  (previous-sibling)
+  ;; readonly attribute Node nextSibling
+  (next-sibling)
+  ;; readonly attribute NamedNodeMap attributes
+  (attributes)
+  ;; readonly attribute Document ownerDocument
+  (owner-document)
+  ;; Node insertBefore(in Node newChild, in Node refChild)
+  ;;      raises(DOMException)
+  (insert-before! (new-child <node>) ref-child) ;ref-child may be #f
+  ;; Node replaceChild(in Node newChild, in Node oldChild)
+  ;;      raises(DOMException)
+  (replace-child! (new-child <node>) (old-child <node>))
+  ;; Node removeChild(in Node oldChild) raises(DOMException)
+  (remove-child! (old-child <node>))
+  ;; Node appendChild(in Node newChild) raises(DOMException)
+  (append-child! (new-child <node>))
+  ;; boolean hasChildNodes()
+  (has-child-nodes?)
+  ;; Node cloneNode(in boolean deep) raises(DOMException)
+  (clone-node deep?)
+  ;; void normalize()
+  (normalize!)
+  ;; boolean isSupported(in DOMString feature, in DOMString version)
+  (supported? (feature <dom-string>) &opt version)
+  ;; readonly attribute DOMString namespaceURI
+  (namespace-uri)
+  ;; attribute DOMString prefix // raises(DOMException) on setting
+  (prefix)
+  (set-prefix! value)			;may be #f
+  ;; readonly attribute DOMString localName
+  (local-name)
+  ;; boolean hasAttributes()
+  (has-attributes?)
+  ;; unsigned short compareDocumentPosition(in Node other)
+  ;;                raises(DOMException)
+  (compare-document-position (other <node>))
+  ;; attribute DOMString textContent // raises(DOMException) on setting
+  ;;                                 // raises(DOMException) on retrieval
+  (text-content)
+  (set-text-content! value)		;<dom-string> or #f
+  ;; boolean isSameNode(in Node other)
+  (same-node? (other <node>))
+  ;; DOMString lookupPrefix(in DOMString namespaceURI)
+  (lookup-prefix (namespace-uri <dom-string>))
+  ;; boolean isDefaultNamespace(in DOMString namespaceURI)
+  (default-namespace? prefix)		;<dom-string> or #f
+  ;; boolean lookupNamespaceURI(in DOMString prefix)
+  (lookup-namespace-uri prefix)	;<dom-string> or #f
+  ;; boolean isEqualNode(in Node arg)
+  (equal-node? (arg <node>))
+  ;; DOMObject getFeature(in DOMString feature, in DOMString version)
+  (feature (feature <dom-string>) version) ;<dom-string> or #f
+  ;; DOMUserData setUserData(in DOMString key, in DOMUserData data,
+  ;;                         in UserDataHandler handler)
+  (set-user-data! (key <dom-string>) (data <dom-user-data>)
+                  (handler <user-data-handler>))
+  ;; DOMUserData getUserData(in DOMString key)
+  (user-data (key <dom-string>))
+  )
 
-  ;; // OperationType
-  (define <operation-type> <exact-integer>)
-  ;; const unsigned short NODE_CLONED   = 1
-  (define *node-cloned* 1)
-  ;; const unsigned short NODE_IMPORTED = 2
-  (define *node-imported* 2)
-  ;; const unsigned short NODE_DELETED  = 3
-  (define *node-deleted* 3)
-  ;; const unsigned short NODE_RENAMED  = 4
-  (define *node-renamed* 4)
-  ;; const unsigned short NODE_ADOPTED  = 5
-  (define *node-adopted* 5)
+;; // OperationType
+(define <operation-type> <exact-integer>)
+;; const unsigned short NODE_CLONED   = 1
+(define *node-cloned* 1)
+;; const unsigned short NODE_IMPORTED = 2
+(define *node-imported* 2)
+;; const unsigned short NODE_DELETED  = 3
+(define *node-deleted* 3)
+;; const unsigned short NODE_RENAMED  = 4
+(define *node-renamed* 4)
+;; const unsigned short NODE_ADOPTED  = 5
+(define *node-adopted* 5)
 
-  ;; // DocumentPosition
-  (define <document-position> <exact-integer>)
-  ;; const unsigned short DOCUMENT_POSITION_DISCONNECTED            = 0x01
-  (define *document-position-disconnected* #x01)
-  ;; const unsigned short DOCUMENT_POSITION_PRECEDING               = 0x02
-  (define *document-position-preceding* #x02)
-  ;; const unsigned short DOCUMENT_POSITION_FOLLOWING               = 0x04
-  (define *document-position-following* #x04)
-  ;; const unsigned short DOCUMENT_POSITION_CONTAINS                = 0x08
-  (define *document-position-contains* #x08)
-  ;; const unsigned short DOCUMENT_POSITION_CONTAINED_BY            = 0x10
-  (define *document-position-contained-by* #x10)
-  ;; const unsigned short DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20
-  (define *document-position-implementation-specific* #x20)
+;; // DocumentPosition
+(define <document-position> <exact-integer>)
+;; const unsigned short DOCUMENT_POSITION_DISCONNECTED            = 0x01
+(define *document-position-disconnected* #x01)
+;; const unsigned short DOCUMENT_POSITION_PRECEDING               = 0x02
+(define *document-position-preceding* #x02)
+;; const unsigned short DOCUMENT_POSITION_FOLLOWING               = 0x04
+(define *document-position-following* #x04)
+;; const unsigned short DOCUMENT_POSITION_CONTAINS                = 0x08
+(define *document-position-contains* #x08)
+;; const unsigned short DOCUMENT_POSITION_CONTAINED_BY            = 0x10
+(define *document-position-contained-by* #x10)
+;; const unsigned short DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20
+(define *document-position-implementation-specific* #x20)
 
-  ;; interface DocumentFragment : Node
-  (definterface <document-fragment> (<node>))
+;; interface DocumentFragment : Node
+(definterface <document-fragment> (<node>))
 
-  ;; interface Document : Node
-  (definterface <document> (<node>)
-    ;; readonly attribute DocumentType doctype
-    (doctype)
-    ;; readonly attribute DOMImplementation implementation
-    (implementation)
-    ;; readonly attribute Element documentElement
-    (document-element)
-    ;; Element createElement(in DOMString tagName) raises(DOMException)
-    (create-element (tag-name <dom-string>))
-    ;; DocumentFragment createDocumentFragment()
-    (create-document-fragment)
-    ;; Text createTextNode(in DOMString data)
-    (create-text-node (data <dom-string>))
-    ;; Comment createComment(in DOMString data)
-    (create-comment (data <dom-string>))
-    ;; CDATASection createCDATASection(in DOMString data)
-    (create-cdata-section (data <dom-string>))
-    ;; ProcessingInstruction createProcessingInstruction(in DOMString target,
-    ;;                                                   in DOMString data)
-    ;;                       raises(DOMException)
-    (create-processing-instruction (target <dom-string>) (data <dom-string>))
-    ;; Attr createAttribute(in DOMString name) raises(DOMException)
-    (create-attribute (name <dom-string>))
-    ;; EntityReference createEntityReference(in DOMString name)
-    ;;                 raises(DOMException)
-    (create-entity-reference (name <dom-string>))
-    ;; NodeList getElementsByTagName(in DOMString tagname)
-    (elements-by-tag-name (tagname <dom-string>))
-    ;; Node importNode(in Node importedNode, in boolean deep)
-    ;;      raises(DOMException)
-    (import-node (imported-node <node>) deep?)
-    ;; Element createElementNS(in DOMString namespaceURI,
-    ;;                         in DOMString qualifiedName)
-    ;;         raises(DOMException)
-    (create-element-ns namespace-uri	;may be #f
-		       (qualified-name <dom-string>))
-    ;; Attr createAttributeNS(in DOMString namespaceURI,
-    ;;                        in DOMString qualified-name)
-    ;;         raises(DOMException)
-    (create-attribute-ns namespace-uri	;may be #f
-		         (qualified-name <dom-string>))
-    ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
-    ;;                                 in DOMString localName)
-    (elements-by-tag-name-ns namespace-uri ;may be #f
-			     (local-name <dom-string>))
-    ;; Element getElementById(in DOMString elementId)
-    (element-by-id (element-id <dom-string>))
-    )
+;; interface Document : Node
+(definterface <document> (<node>)
+  ;; readonly attribute DocumentType doctype
+  (doctype)
+  ;; readonly attribute DOMImplementation implementation
+  (implementation)
+  ;; readonly attribute Element documentElement
+  (document-element)
+  ;; Element createElement(in DOMString tagName) raises(DOMException)
+  (create-element (tag-name <dom-string>))
+  ;; DocumentFragment createDocumentFragment()
+  (create-document-fragment)
+  ;; Text createTextNode(in DOMString data)
+  (create-text-node (data <dom-string>))
+  ;; Comment createComment(in DOMString data)
+  (create-comment (data <dom-string>))
+  ;; CDATASection createCDATASection(in DOMString data)
+  (create-cdata-section (data <dom-string>))
+  ;; ProcessingInstruction createProcessingInstruction(in DOMString target,
+  ;;                                                   in DOMString data)
+  ;;                       raises(DOMException)
+  (create-processing-instruction (target <dom-string>) (data <dom-string>))
+  ;; Attr createAttribute(in DOMString name) raises(DOMException)
+  (create-attribute (name <dom-string>))
+  ;; EntityReference createEntityReference(in DOMString name)
+  ;;                 raises(DOMException)
+  (create-entity-reference (name <dom-string>))
+  ;; NodeList getElementsByTagName(in DOMString tagname)
+  (elements-by-tag-name (tagname <dom-string>))
+  ;; Node importNode(in Node importedNode, in boolean deep)
+  ;;      raises(DOMException)
+  (import-node (imported-node <node>) deep?)
+  ;; Element createElementNS(in DOMString namespaceURI,
+  ;;                         in DOMString qualifiedName)
+  ;;         raises(DOMException)
+  (create-element-ns namespace-uri	;may be #f
+                     (qualified-name <dom-string>))
+  ;; Attr createAttributeNS(in DOMString namespaceURI,
+  ;;                        in DOMString qualified-name)
+  ;;         raises(DOMException)
+  (create-attribute-ns namespace-uri	;may be #f
+                       (qualified-name <dom-string>))
+  ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
+  ;;                                 in DOMString localName)
+  (elements-by-tag-name-ns namespace-uri ;may be #f
+                           (local-name <dom-string>))
+  ;; Element getElementById(in DOMString elementId)
+  (element-by-id (element-id <dom-string>))
+  )
 
-  ;; interface NodeList
-  (definterface <node-list> ()
-    ;; Node item(in unsigned long index)
-    (item (index <exact-integer>))
-    ;; readonly attribute unsigned long length
-    ;; [Use Swindle's len generic.]
-    )
+;; interface NodeList
+(definterface <node-list> ()
+  ;; Node item(in unsigned long index)
+  (item (index <exact-integer>))
+  ;; readonly attribute unsigned long length
+  ;; [Use Swindle's len generic.]
+  )
 
-  ;; interface NamedNodeMap
-  (definterface <named-node-map> ()
-    ;; Node getNamedItem(in DOMString name)
-    (named-item (name <dom-string>))
-    ;; Node setNamedItem(in Node arg) raises(DOMException)
-    (set-named-item! (arg <node>))
-    ;; Node removeNamedItem(in DOMString name) raises(DOMException)
-    (remove-named-item! (name <dom-string>))
-    ;; Node item(in unsigned long index)
-    ;; [Defined in <node-list>.]
-    ;; readonly attribute unsigned long length
-    ;; [Use Swindle's len generic.]
-    ;; Node getNamedItemNS(in DOMString namespaceURI, in DOMString localName)
-    (named-item-ns namespace-uri	;may be #f
-		   (local-name <dom-string>))
-    ;; Node setNamedItemNS(in Node arg) raises(DOMException)
-    (set-named-item-ns! (arg <node>))
-    ;; Node removeNamedItemNS(in DOMString namespaceURI, in DOMString localName)
-    ;;      raises(DOMException)
-    (remove-named-item-ns! namespace-uri ;may be #f
-			   (local-name <dom-string>))
-    )
+;; interface NamedNodeMap
+(definterface <named-node-map> ()
+  ;; Node getNamedItem(in DOMString name)
+  (named-item (name <dom-string>))
+  ;; Node setNamedItem(in Node arg) raises(DOMException)
+  (set-named-item! (arg <node>))
+  ;; Node removeNamedItem(in DOMString name) raises(DOMException)
+  (remove-named-item! (name <dom-string>))
+  ;; Node item(in unsigned long index)
+  ;; [Defined in <node-list>.]
+  ;; readonly attribute unsigned long length
+  ;; [Use Swindle's len generic.]
+  ;; Node getNamedItemNS(in DOMString namespaceURI, in DOMString localName)
+  (named-item-ns namespace-uri	;may be #f
+                 (local-name <dom-string>))
+  ;; Node setNamedItemNS(in Node arg) raises(DOMException)
+  (set-named-item-ns! (arg <node>))
+  ;; Node removeNamedItemNS(in DOMString namespaceURI, in DOMString localName)
+  ;;      raises(DOMException)
+  (remove-named-item-ns! namespace-uri ;may be #f
+                         (local-name <dom-string>))
+  )
 
-  ;; interface CharacterData : Node
-  (definterface <character-data> (<node>)
-    ;; attribute DOMString data // raises(DOMException) on setting
-    ;;                          // raises(DOMException) on retrieval
-    (data)
-    (set-data! (value <dom-string>))
-    ;; readonly attribute unsigned long length
-    ;; [Use Swindle's len generic.]
-    ;; DOMString substringData(in unsigned long offset, in unsigned long count)
-    ;;           raises(DOMException)
-    (substring-data (offset <exact-integer>) (count <exact-integer>))
-    ;; void appendData(in DOMString arg) raises(DOMException)
-    (append-data! (arg <dom-string>))
-    ;; void insertData(in unsigned long offset, in DOMString arg)
-    ;;      raises(DOMException)
-    (insert-data! (offset <exact-integer>) (arg <dom-string>))
-    ;; void deleteData(in unsigned long offset, in unsigned long count)
-    ;;      raises(DOMException)
-    (delete-data! (offset <exact-integer>) (count <exact-integer>))
-    ;; void replaceData(in unsigned long offset, in unsigned long count,
-    ;;                  in DOMString arg)
-    ;;      raises(DOMException)
-    (replace-data! (offset <exact-integer>) (count <exact-integer>)
-		   (arg <dom-string>))
-    )
+;; interface CharacterData : Node
+(definterface <character-data> (<node>)
+  ;; attribute DOMString data // raises(DOMException) on setting
+  ;;                          // raises(DOMException) on retrieval
+  (data)
+  (set-data! (value <dom-string>))
+  ;; readonly attribute unsigned long length
+  ;; [Use Swindle's len generic.]
+  ;; DOMString substringData(in unsigned long offset, in unsigned long count)
+  ;;           raises(DOMException)
+  (substring-data (offset <exact-integer>) (count <exact-integer>))
+  ;; void appendData(in DOMString arg) raises(DOMException)
+  (append-data! (arg <dom-string>))
+  ;; void insertData(in unsigned long offset, in DOMString arg)
+  ;;      raises(DOMException)
+  (insert-data! (offset <exact-integer>) (arg <dom-string>))
+  ;; void deleteData(in unsigned long offset, in unsigned long count)
+  ;;      raises(DOMException)
+  (delete-data! (offset <exact-integer>) (count <exact-integer>))
+  ;; void replaceData(in unsigned long offset, in unsigned long count,
+  ;;                  in DOMString arg)
+  ;;      raises(DOMException)
+  (replace-data! (offset <exact-integer>) (count <exact-integer>)
+                 (arg <dom-string>))
+  )
 
-  ;; interface Attr : Node
-  (definterface <attr> (<node>)
-    ;; readonly attribute DOMString name
-    (name)
-    ;; readonly attribute boolean specified
-    (specified?)
-    ;; attribute DOMString value // raises(DOMException) on setting
-    (value)
-    (set-value! (value <dom-string>))
-    ;; readonly attribute Element ownerElement
-    (owner-element)
-    )
+;; interface Attr : Node
+(definterface <attr> (<node>)
+  ;; readonly attribute DOMString name
+  (name)
+  ;; readonly attribute boolean specified
+  (specified?)
+  ;; attribute DOMString value // raises(DOMException) on setting
+  (value)
+  (set-value! (value <dom-string>))
+  ;; readonly attribute Element ownerElement
+  (owner-element)
+  )
 
-  ;; interface Element : Node
-  (definterface <element> (<node>)
-    ;; readonly attribute DOMString tagName
-    (tag-name)
-    ;; DOMString getAttribute(in DOMString name)
-    (attribute (name <dom-string>))
-    ;; void setAttribute(in DOMString name, in DOMString value)
-    ;;      raises(DOMException)
-    (set-attribute! (name <dom-string>) (value <dom-string>))
-    ;; void removeAttribute(in DOMString name) raises(DOMException)
-    (remove-attribute! (name <dom-string>))
-    ;; Attr getAttributeNode(in DOMString name)
-    (attribute-node (name <dom-string>))
-    ;; Attr setAttributeNode(in Attr newAttr) raises(DOMException)
-    (set-attribute-node! (new-attr <attr>))
-    ;; Attr removeAttributeNode(in Attr oldAttr) raises(DOMException)
-    (remove-attribute-node! (old-attr <attr>))
-    ;; NodeList getElementsByTagName(in DOMString name)
-    ;; [Defined in <document>.]
-    ;; void normalize()
-    ;; [Defined in <node>.]
-    ;; DOMString getAttributeNS(in DOMString namespaceURI,
-    ;;                          in DOMString localName)
-    (attribute-ns namespace-uri		;may be #f
-		  (local-name <dom-string>))
-    ;; void setAttributeNS(in DOMString namespaceURI,
-    ;;                     in DOMString qualifiedName,
-    ;;                     in DOMString value)
-    ;;      raises(DOMException)
-    (set-attribute-ns! namespace-uri	;may be #f
-		       (qualified-name <dom-string>)
-		       (value <dom-string>))
-    ;; void removeAttributeNS(in DOMString namespaceURI,
-    ;;                        in DOMString localName)
-    ;;      raises(DOMException)
-    (remove-attribute-ns! namespace-uri ;may be #f
-			  (local-name <dom-string>))
-    ;; Attr getAttributeNodeNS(in DOMString namespaceURI,
-    ;;                         in DOMString localName)
-    (attribute-node-ns namespace-uri	;may be #f
-		       (local-name <dom-string>))
-    ;; Attr setAttributeNodeNS(in Attr newAttr)
-    ;;      raises(DOMException)
-    (set-attribute-node-ns! (new-attr <attr>))
-    ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
-    ;;                                 in DOMString localName)
-    ;; [Defined in <document>.]
-    ;; boolean hasAttribute(in DOMString name)
-    (has-attribute? (name <dom-string>))
-    ;; boolean hasAttributeNS(in DOMString namespaceURI,
-    ;;                        in DOMString localName)
-    (has-attribute-ns? namespace-uri	;may be #f
-		       (local-name <dom-string>))
-    )
+;; interface Element : Node
+(definterface <element> (<node>)
+  ;; readonly attribute DOMString tagName
+  (tag-name)
+  ;; DOMString getAttribute(in DOMString name)
+  (attribute (name <dom-string>))
+  ;; void setAttribute(in DOMString name, in DOMString value)
+  ;;      raises(DOMException)
+  (set-attribute! (name <dom-string>) (value <dom-string>))
+  ;; void removeAttribute(in DOMString name) raises(DOMException)
+  (remove-attribute! (name <dom-string>))
+  ;; Attr getAttributeNode(in DOMString name)
+  (attribute-node (name <dom-string>))
+  ;; Attr setAttributeNode(in Attr newAttr) raises(DOMException)
+  (set-attribute-node! (new-attr <attr>))
+  ;; Attr removeAttributeNode(in Attr oldAttr) raises(DOMException)
+  (remove-attribute-node! (old-attr <attr>))
+  ;; NodeList getElementsByTagName(in DOMString name)
+  ;; [Defined in <document>.]
+  ;; void normalize()
+  ;; [Defined in <node>.]
+  ;; DOMString getAttributeNS(in DOMString namespaceURI,
+  ;;                          in DOMString localName)
+  (attribute-ns namespace-uri		;may be #f
+                (local-name <dom-string>))
+  ;; void setAttributeNS(in DOMString namespaceURI,
+  ;;                     in DOMString qualifiedName,
+  ;;                     in DOMString value)
+  ;;      raises(DOMException)
+  (set-attribute-ns! namespace-uri	;may be #f
+                     (qualified-name <dom-string>)
+                     (value <dom-string>))
+  ;; void removeAttributeNS(in DOMString namespaceURI,
+  ;;                        in DOMString localName)
+  ;;      raises(DOMException)
+  (remove-attribute-ns! namespace-uri ;may be #f
+                        (local-name <dom-string>))
+  ;; Attr getAttributeNodeNS(in DOMString namespaceURI,
+  ;;                         in DOMString localName)
+  (attribute-node-ns namespace-uri	;may be #f
+                     (local-name <dom-string>))
+  ;; Attr setAttributeNodeNS(in Attr newAttr)
+  ;;      raises(DOMException)
+  (set-attribute-node-ns! (new-attr <attr>))
+  ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
+  ;;                                 in DOMString localName)
+  ;; [Defined in <document>.]
+  ;; boolean hasAttribute(in DOMString name)
+  (has-attribute? (name <dom-string>))
+  ;; boolean hasAttributeNS(in DOMString namespaceURI,
+  ;;                        in DOMString localName)
+  (has-attribute-ns? namespace-uri	;may be #f
+                     (local-name <dom-string>))
+  )
 
-  ;; interface Text : CharacterData
-  (definterface <text> (<character-data>)
-    ;; Text splitText(in unsigned long offset) raises(DOMException)
-    (split-text! (offset <exact-integer>))
-    )
+;; interface Text : CharacterData
+(definterface <text> (<character-data>)
+  ;; Text splitText(in unsigned long offset) raises(DOMException)
+  (split-text! (offset <exact-integer>))
+  )
 
-  ;; interface Comment : CharacterData
-  (definterface <comment> (<character-data>))
-)
+;; interface Comment : CharacterData
+(definterface <comment> (<character-data>))

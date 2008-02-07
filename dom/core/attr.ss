@@ -1,85 +1,87 @@
-(module attr "../swindle.ss"
-  (require "types.ss")
-  (require "interfaces.ss")
-  (require "exn.ss")
-  (require (only "node.ss" allow-child))
-  (require (only "named.ss" <named>))
-  (require (only "owned.ss" <owned>))
-  (require (only "contained.ss" <contained> container))
-  (require (only "parent.ss" <parent>))
-  (require (only "text-content.ss" <text-container>))
-  (require (only "collections.ss" <named-node-map-impl>))
-  (require (only "namespaced.ss" <namespaced>))
+#lang swindle
 
-  (defmethod (create-attribute (document <document>) (name <dom-string>))
-    (make <attr-impl> :document document :name name))
+(require "../swindle.ss")
+(require "types.ss")
+(require "interfaces.ss")
+(require "exn.ss")
+(require (only "node.ss" allow-child))
+(require (only "named.ss" <named>))
+(require (only "owned.ss" <owned>))
+(require (only "contained.ss" <contained> container))
+(require (only "parent.ss" <parent>))
+(require (only "text-content.ss" <text-container>))
+(require (only "collections.ss" <named-node-map-impl>))
+(require (only "namespaced.ss" <namespaced>))
 
-  (allow-child <attr> <text>)
+(defmethod (create-attribute (document <document>) (name <dom-string>))
+  (make <attr-impl> :document document :name name))
 
-  (defmethod (node-type (node <attr>)) *attribute-node*)
-  (defmethod (node-value (node <attr>)) (value node))
-  (defmethod (set-node-value! (node <attr>) (value <dom-string>))
-    (set! (value node) value))
+(allow-child <attr> <text>)
 
-  (defmethod (clone-node (node <attr>) deep?)
-    (create-attribute (owner-document node) (node-name node)))
+(defmethod (node-type (node <attr>)) *attribute-node*)
+(defmethod (node-value (node <attr>)) (value node))
+(defmethod (set-node-value! (node <attr>) (value <dom-string>))
+  (set! (value node) value))
 
-  (defaroundmethod (clone-node (node <attr>) deep?)
-    ;; Attributes always clone their children.
-    (call-next-method node #t))
+(defmethod (clone-node (node <attr>) deep?)
+  (create-attribute (owner-document node) (node-name node)))
 
-  (defmethod (name (attr <attr>)) (node-name attr))
-  (defmethod (specified? (attr <attr>)) #t)
-  (defmethod (value (attr <attr>)) (text-content attr))
-  (defmethod (set-value! (attr <attr>) (value <dom-string>))
-    (set! (text-content attr) value))
+(defaroundmethod (clone-node (node <attr>) deep?)
+  ;; Attributes always clone their children.
+  (call-next-method node #t))
 
-  (defclass* <attr-impl>
-      (<named> <owned> <contained> <parent> <text-container> <attr>))
+(defmethod (name (attr <attr>)) (node-name attr))
+(defmethod (specified? (attr <attr>)) #t)
+(defmethod (value (attr <attr>)) (text-content attr))
+(defmethod (set-value! (attr <attr>) (value <dom-string>))
+  (set! (text-content attr) value))
 
-  (defbeforemethod (set-keyed-item! (nodes <named-node-map-impl>)
-				    (new-attr <attr-impl>))
-    (let ((old-nodes (container new-attr)))
-      (when (and old-nodes (not (eq? old-nodes nodes)))
-	(raise-exn:dom *inuse-attribute-err*
-	  "~v is already an attribute of ~v"
-	  new-attr (container old-nodes)))))
+(defclass* <attr-impl>
+    (<named> <owned> <contained> <parent> <text-container> <attr>))
 
-  (defclass* <specified-attr> (<attr-impl>))
+(defbeforemethod (set-keyed-item! (nodes <named-node-map-impl>)
+                                  (new-attr <attr-impl>))
+  (let ((old-nodes (container new-attr)))
+    (when (and old-nodes (not (eq? old-nodes nodes)))
+      (raise-exn:dom *inuse-attribute-err*
+        "~v is already an attribute of ~v"
+        new-attr (container old-nodes)))))
 
-  (defmethod (specified? <specified-attr>) #f)
+(defclass* <specified-attr> (<attr-impl>))
 
-
-  (defmethod (create-attribute-ns (document <document>)
-				  (namespace-uri = #f)
-				  (qualified-name <dom-string>))
-    (create-attribute document qualified-name))
-
-  (defmethod (create-attribute-ns (document <document>)
-				  (namespace-uri <dom-string>)
-				  (qualified-name <dom-string>))
-    (make <attr-ns> :document document :ns namespace-uri :name qualified-name))
+(defmethod (specified? <specified-attr>) #f)
 
 
-  (defmethod (owner-document (attr <attr>))
-    (let ((nodes (container attr)))
-      (and nodes (container nodes))))
+(defmethod (create-attribute-ns (document <document>)
+                                (namespace-uri = #f)
+                                (qualified-name <dom-string>))
+  (create-attribute document qualified-name))
+
+(defmethod (create-attribute-ns (document <document>)
+                                (namespace-uri <dom-string>)
+                                (qualified-name <dom-string>))
+  (make <attr-ns> :document document :ns namespace-uri :name qualified-name))
 
 
-  (defclass* <attr-ns> (<namespaced> <attr-impl>))
+(defmethod (owner-document (attr <attr>))
+  (let ((nodes (container attr)))
+    (and nodes (container nodes))))
 
-  (defmethod (clone-node (node <attr-ns>) deep?)
-    (create-attribute-ns (owner-document node)
-			 (namespace-uri node) (node-name node)))
 
-  (defmethod (set-attribute-node! (element <element>) (new-attr <attr-ns>))
-    (set-attribute-node-ns! element new-attr))
+(defclass* <attr-ns> (<namespaced> <attr-impl>))
 
-  (defmethod (set-attribute-node-ns! (element <element>) (new-attr <attr-ns>))
-    (let* ((name (local-name new-attr))
-	   (ns (namespace-uri new-attr))
-	   (old-attr (attribute-node-ns element ns name)))
-      (when old-attr (remove-attribute-node! element old-attr))
-      (set-named-item-ns! (attributes element) new-attr)
-      old-attr))
-)
+(defmethod (clone-node (node <attr-ns>) deep?)
+  (create-attribute-ns (owner-document node)
+                       (namespace-uri node) (node-name node)))
+
+(defmethod (set-attribute-node! (element <element>) (new-attr <attr-ns>))
+  (set-attribute-node-ns! element new-attr))
+
+(defmethod (set-attribute-node-ns! (element <element>) (new-attr <attr-ns>))
+  (let* ((name (local-name new-attr))
+         (ns (namespace-uri new-attr))
+         (old-attr (attribute-node-ns element ns name)))
+    (when old-attr (remove-attribute-node! element old-attr))
+    (set-named-item-ns! (attributes element) new-attr)
+    old-attr))
+

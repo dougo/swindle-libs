@@ -1,11 +1,13 @@
-(module readonly "../swindle.ss"
-  (require "interfaces.ss")
-  (require "exn.ss")
+#lang swindle
 
-  (defmethod* (check-readonly x)
-    (when (readonly? x)
-      (raise-exn:dom *no-modification-allowed-err*
-	"~v is readonly" x)))
+(require "../swindle.ss")
+(require "interfaces.ss")
+(require "exn.ss")
 
-  (defmethod* (readonly? x) #f)
-)
+(defmethod* (check-readonly x)
+  (when (readonly? x)
+    (raise-exn:dom *no-modification-allowed-err*
+      "~v is readonly" x)))
+
+(defmethod* (readonly? x) #f)
+
