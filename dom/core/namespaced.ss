@@ -3,7 +3,7 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
-(require (only (lib "13.ss" "srfi") string-null? string-index))
+(require (only srfi/13 string-null? string-index))
 (require (only "exn.ss" raise-exn:dom))
 (require (only "named.ss" check-name <named> set-node-name!))
 (require (only "extra.ss" parse-qname well-formed-qname? well-formed-ncname?

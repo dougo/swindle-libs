@@ -8,7 +8,7 @@
 (require (only "owned.ss" <owned>))
 (require (only "child.ss" <child>))
 (require (only "text-content.ss" text-content-for-parent))
-(require (only (lib "13.ss" "srfi") string-replace substring/shared))
+(require (only srfi/13 string-replace substring/shared))
 
 ;; TO DO: make a <valued> mixin
 (defmethod (node-value (node <character-data>))

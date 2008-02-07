@@ -3,7 +3,7 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
-(require (only (lib "13.ss" "srfi")
+(require (only srfi/13
                string-null? string-take string-drop
                string-index string-index-right))
 

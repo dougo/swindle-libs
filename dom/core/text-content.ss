@@ -5,7 +5,7 @@
 (require "interfaces.ss")
 (require "exn.ss")
 (require (only "extra.ss" remove-children!))
-(require (only (lib "13.ss" "srfi") string-null?))
+(require (only srfi/13 string-null?))
 
 (defmethod* (text-content-for-parent (node <node>))
   (text-content node))

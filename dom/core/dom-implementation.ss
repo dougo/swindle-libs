@@ -3,7 +3,7 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
-(require (only (lib "13.ss" "srfi") string-null?))
+(require (only srfi/13 string-null?))
 
 (defmethod (has-feature? (impl <dom-implementation>)
                          (feature <dom-string>) &opt version)

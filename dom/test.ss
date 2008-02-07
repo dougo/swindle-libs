@@ -2,11 +2,11 @@
 
 (require "swindle.ss")
 (require* "private.ss")
-(require (prefix xml: (lib "xml.ss" "xml")))
-(provide (all-from (lib "xml.ss" "xml")))
-(require (only (lib "1.ss" "srfi") lset=))
-(require (only (lib "etc.ss") this-expression-source-directory))
-(require* (lib "pretty.ss"))
+(require (prefix xml: xml/xml))
+(provide (all-from xml/xml))
+(require (only srfi/1 lset=))
+(require (only mzlib/etc this-expression-source-directory))
+(require* mzlib/pretty)
 (provide (all-defined))
 
 (xml:read-comments #t)

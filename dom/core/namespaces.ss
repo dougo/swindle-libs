@@ -3,7 +3,7 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
-(require (only (lib "13.ss" "srfi") string-null?))
+(require (only srfi/13 string-null?))
 (require (only "extra.ss" ancestor-element *xmlns-ns*))
 
 ;; B.2 Namespace Prefix Lookup

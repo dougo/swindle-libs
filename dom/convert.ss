@@ -3,7 +3,7 @@
 #lang swindle
 
 (require "swindle.ss")
-(require (prefix xml: (lib "xml.ss" "xml")))
+(require (prefix xml: xml/xml))
 (provide xml:read-comments xml:empty-tag-shorthand
          xml:xexpr-drop-empty-attributes)
 (require "core/core.ss")
