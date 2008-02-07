@@ -119,7 +119,7 @@
 
   (defmethod* (xml:entity->dom xml (doc <document>))
     (let* ((text (xml:entity-text xml))
-	   (string (xml:entity-text->string xml)))
+	   (string (xml:entity-text->string text)))
       (if string
 	  (create-text-node doc (as <dom-string> string))
 	  (create-entity-reference doc (as <dom-string> text)))))
@@ -142,9 +142,9 @@
 	      (dtd (push! xml misc2))
 	      ((xml:document-type? xml) (set! dtd xml))
 	      (else (push! xml misc))))
-      (xml:make-document (apply xml:make-prolog (reverse! misc) dtd
-				(reverse! misc2))
-			 element (reverse! misc3))))
+      (xml:make-document (apply xml:make-prolog (reverse misc) dtd
+				(reverse misc2))
+			 element (reverse misc3))))
 
   (defmethod (dom->xml (node <document-fragment>))
     (map-sequence dom->xml (child-nodes node)))
@@ -214,7 +214,7 @@
 		      (loop (cons (concat first next) (cdr rest)))
 		      (cons first (loop rest)))))))))
 
-  (defmethod* (xml:node-ns node (parent <node>) qname)
+  (defmethod* (xml:node-ns node (parent <node>) (qname <dom-string>))
     (let/ec return
       (unless (well-formed-qname? qname) (return #f))
       (let ((prefix (prefix qname)))
