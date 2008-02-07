@@ -1,20 +1,21 @@
 ;; JEP-0030: Service Discovery
 
-(module disco "swindle.ss"
-  (require "client.ss")
-  (require "dom.ss")
-  (require "iq.ss")
-  (require (lib "dom.ss" "dom"))
-  (provide (all-defined))
+#lang s-exp "swindle.ss"
 
-  (define *disco-info-ns* "http://jabber.org/protocol/disco#info")
-  (define *disco-items-ns* "http://jabber.org/protocol/disco#items")
+(require "client.ss")
+(require "dom.ss")
+(require "iq.ss")
+(require dom/dom)
+(provide (all-defined))
 
-  (defelementclass <disco-info> *disco-info-ns* "query")
-  (defelementclass <disco-items> *disco-items-ns* "query")
+(define *disco-info-ns* "http://jabber.org/protocol/disco#info")
+(define *disco-items-ns* "http://jabber.org/protocol/disco#items")
 
-  (defmethod (handle-iq-request (client <client>) (from <string>)
-                                (payload <disco-info>))
-    (append-child!/xexpr payload '(identity ((category "client" "bot"))))
-    payload)
-)
+(defelementclass <disco-info> *disco-info-ns* "query")
+(defelementclass <disco-items> *disco-items-ns* "query")
+
+(defmethod (handle-iq-request (client <client>) (from <string>)
+                              (payload <disco-info>))
+  (append-child!/xexpr payload '(identity ((category "client" "bot"))))
+  payload)
+

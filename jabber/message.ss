@@ -1,8 +1,9 @@
-(module message "swindle.ss"
-  (require "dom.ss")
-  (require "stream.ss")
-  (require "stanza.ss")
-  (provide (all-defined))
+#lang s-exp "swindle.ss"
 
-  (defelementclass (<message> <stanza>) *client-ns* "message")
-)
+(require "dom.ss")
+(require "stream.ss")
+(require "stanza.ss")
+(provide (all-defined))
+
+(defelementclass (<message> <stanza>) *client-ns* "message")
+

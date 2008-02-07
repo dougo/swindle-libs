@@ -1,44 +1,45 @@
 ;; JEP-0090: Entity Time
 
-(module time "swindle.ss"
-  (require "client.ss")
-  (require "dom.ss")
-  (require "iq.ss")
-  (require "stream.ss")
-  (require (lib "dom.ss" "dom"))
-  (provide (all-defined))
+#lang s-exp "swindle.ss"
 
-  (define *time-ns* "jabber:iq:time")
+(require "client.ss")
+(require "dom.ss")
+(require "iq.ss")
+(require "stream.ss")
+(require dom/dom)
+(provide (all-defined))
 
-  ;; Ask a Jabber entity what it thinks the time is.  The return value
-  ;; is a <time-query> object; use the utc function to access the UTC
-  ;; time string.
-  (defmethod (query-time (client <client>) &opt (entity (hostname client)))
-    (iq client 'get (make-time-query client) entity))
+(define *time-ns* "jabber:iq:time")
 
-  ;; Keep an XMPP connection alive by asking it for the time every n
-  ;; seconds (10 minutes by default).
-  (defmethod (keep-alive (client <client>) &opt (n 600))
-    (thread (rec loop
-              (thunk
-               (sleep n)
-               ;; TO DO: check that client is still connected
-               (query-time client)
-               (loop)))))
+;; Ask a Jabber entity what it thinks the time is.  The return value
+;; is a <time-query> object; use the utc function to access the UTC
+;; time string.
+(defmethod (query-time (client <client>) &opt (entity (hostname client)))
+  (iq client 'get (make-time-query client) entity))
 
-  (defelementclass <time-query> *time-ns* "query")
+;; Keep an XMPP connection alive by asking it for the time every n
+;; seconds (10 minutes by default).
+(defmethod (keep-alive (client <client>) &opt (n 600))
+  (thread (rec loop
+            (thunk
+             (sleep n)
+             ;; TO DO: check that client is still connected
+             (query-time client)
+             (loop)))))
 
-  (defmethod (make-time-query (client <client>))
-    (xexpr->dom `(query ((xmlns ,*time-ns*)))
-                (document (initial-stream client))))
+(defelementclass <time-query> *time-ns* "query")
 
-  (defmethod (utc (reply <time-query>))
-    (text-field reply 'utc))
+(defmethod (make-time-query (client <client>))
+  (xexpr->dom `(query ((xmlns ,*time-ns*)))
+              (document (initial-stream client))))
 
-  ;; These are optional:
+(defmethod (utc (reply <time-query>))
+  (text-field reply 'utc))
 
-  (defmethod (tz (reply <time-query>))
-    (text-field reply 'tz))
-  (defmethod (time-display (reply <time-query>))
-    (text-field reply 'display))
-)
+;; These are optional:
+
+(defmethod (tz (reply <time-query>))
+  (text-field reply 'tz))
+(defmethod (time-display (reply <time-query>))
+  (text-field reply 'display))
+

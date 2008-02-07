@@ -1,76 +1,77 @@
 ;;; JEP-0045: Multi-User Chat
 
-(module muc "swindle.ss"
-  (require "client.ss")
-  (require "dom.ss")
-  (require "jid.ss")
-  (require "presence.ss")
-  (require (lib "dom.ss" "dom"))
-  (provide (all-defined))
+#lang s-exp "swindle.ss"
 
-  (define *muc-ns* "http://jabber.org/protocol/muc")
+(require "client.ss")
+(require "dom.ss")
+(require "jid.ss")
+(require "presence.ss")
+(require dom/dom)
+(provide (all-defined))
 
-  ;; A client representation of a MUC.  The MUC may or may not exist
-  ;; on the service when the <muc> object is created.  Entering a
-  ;; <muc> creates the MUC if needed.
-  (defclass <muc> ()
-    (client :type <client>)
-    (room-id :type <string>)
-    (service :type <string>)
-    (nickname :type <string>
-              :initializer (lambda args
-                             ;; Default to the node-id of the user's JID.
-                             (node-id (address (getarg args :client)))))
-    :autoinitargs #t :autoaccessors :slot)
+(define *muc-ns* "http://jabber.org/protocol/muc")
 
-  ;; The address (JID) of the client on the MUC.
-  (defmethod (address (muc <muc>))
-    (make <jid> :node (room-id muc) :domain (service muc)
-          :resource (nickname muc)))
+;; A client representation of a MUC.  The MUC may or may not exist
+;; on the service when the <muc> object is created.  Entering a
+;; <muc> creates the MUC if needed.
+(defclass <muc> ()
+  (client :type <client>)
+  (room-id :type <string>)
+  (service :type <string>)
+  (nickname :type <string>
+            :initializer (lambda args
+                           ;; Default to the node-id of the user's JID.
+                           (node-id (address (getarg args :client)))))
+  :autoinitargs #t :autoaccessors :slot)
 
-  ;; The address (JID) of the MUC itself.
-  (defmethod (room-address (muc <muc>))
-    (bare (address muc)))
+;; The address (JID) of the client on the MUC.
+(defmethod (address (muc <muc>))
+  (make <jid> :node (room-id muc) :domain (service muc)
+        :resource (nickname muc)))
 
-  ;; The list of mucs in which the client is currently an occupant.
-  (define *mucs* (make-hash-table 'weak))
-  (defmethod (mucs (client <client>))
-    (hash-table-get *mucs* client null))
-  (defmethod (set-mucs! (client <client>) (mucs <list>))
-    (hash-table-put! *mucs* client mucs))
-  (defmethod (add-muc! (client <client>) (muc <muc>))
-    (set-mucs! client (cons muc (mucs client))))
-  (defmethod (remove-muc! (client <client>) (muc <muc>))
-    (set-mucs! client (remove muc (mucs client))))
+;; The address (JID) of the MUC itself.
+(defmethod (room-address (muc <muc>))
+  (bare (address muc)))
 
-  (defmethod (occupant? (client <client>) (muc <muc>))
-    (memq muc (mucs client)))
-  (defmethod (occupied? (muc <muc>))
-    (occupant? (client muc) muc))
+;; The list of mucs in which the client is currently an occupant.
+(define *mucs* (make-hash-table 'weak))
+(defmethod (mucs (client <client>))
+  (hash-table-get *mucs* client null))
+(defmethod (set-mucs! (client <client>) (mucs <list>))
+  (hash-table-put! *mucs* client mucs))
+(defmethod (add-muc! (client <client>) (muc <muc>))
+  (set-mucs! client (cons muc (mucs client))))
+(defmethod (remove-muc! (client <client>) (muc <muc>))
+  (set-mucs! client (remove muc (mucs client))))
 
-  (defmethod (make-presence (muc <muc>) &key type)
-    (let ((presence (make-presence (client muc) :to (address muc) :type type)))
-      (append-child!/xexpr presence `(x ((xmlns ,*muc-ns*))))
-      presence))
+(defmethod (occupant? (client <client>) (muc <muc>))
+  (memq muc (mucs client)))
+(defmethod (occupied? (muc <muc>))
+  (occupant? (client muc) muc))
 
-  (defmethod (enter (muc <muc>))
-    (unless (occupied? muc)
-      (send (client muc) (make-presence muc))
-      (add-muc! (client muc) muc)
-      ;; TO DO: configure the room if it was just created
-      ))
+(defmethod (make-presence (muc <muc>) &key type)
+  (let ((presence (make-presence (client muc) :to (address muc) :type type)))
+    (append-child!/xexpr presence `(x ((xmlns ,*muc-ns*))))
+    presence))
 
-  (defmethod (exit (muc <muc>))
-    (when (occupied? muc)
-      (send (client muc) (make-presence muc :type 'unavailable))
-      (remove-muc! (client muc) muc)))
+(defmethod (enter (muc <muc>))
+  (unless (occupied? muc)
+    (send (client muc) (make-presence muc))
+    (add-muc! (client muc) muc)
+    ;; TO DO: configure the room if it was just created
+    ))
 
-  ;; TO DO: handle presence, wait for own presence before adding/removing
+(defmethod (exit (muc <muc>))
+  (when (occupied? muc)
+    (send (client muc) (make-presence muc :type 'unavailable))
+    (remove-muc! (client muc) muc)))
 
-  (defaftermethod (set-nickname! (muc <muc>) (nickname <string>))
-    (when (occupied? muc)
-      (send (client muc) (make-presence muc))))
+;; TO DO: handle presence, wait for own presence before adding/removing
 
-  (defbeforemethod (shutdown (client <client>))
-    (for-each exit (mucs client)))
-)
+(defaftermethod (set-nickname! (muc <muc>) (nickname <string>))
+  (when (occupied? muc)
+    (send (client muc) (make-presence muc))))
+
+(defbeforemethod (shutdown (client <client>))
+  (for-each exit (mucs client)))
+
