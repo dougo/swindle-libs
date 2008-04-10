@@ -8,6 +8,7 @@
          xml:xexpr-drop-empty-attributes)
 (require "core/core.ss")
 (require "xml/xml.ss")
+(require (only html/html read-html-as-xml))
 
 ;; TO DO: implement DOM Level 3 Load/Save
 
@@ -34,6 +35,12 @@
   (read-dom/element parent (open-input-string s)))
 (defmethod* (dom->string (node <node>))
   (with-output-to-string (thunk (write-dom node))))
+
+(defmethod* (read-html-as-dom (parent <node>) &opt port)
+  (let ((frag (create-document-fragment (or (owner-document parent) parent))))
+    (dolist (xml (read-html-as-xml port))
+      (append-child! frag (xml->dom xml frag)))
+    frag))
 
 (defmethod* (append-child!/xexpr (parent <node>) xexpr)
   (append-child! parent (xexpr->dom xexpr parent)))
