@@ -1,6 +1,6 @@
 #lang s-exp "swindle.ss"
 
-(require dom/dom)
+(require dom)
 (require "dom.ss")
 (require "stream.ss")
 (require "exn.ss")

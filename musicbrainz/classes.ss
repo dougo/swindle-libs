@@ -17,6 +17,7 @@
 (defclass <release> (<resource>) artist title tracks release-events)
 ;; TO DO: type, status, language info, discids
 
+(defgeneric date)
 (defclass <release-event> () date country)
 ;; TO DO: label?
 

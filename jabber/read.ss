@@ -3,7 +3,7 @@
 #lang s-exp "swindle.ss"
 
 (require (only srfi/13 string-prefix?))
-(require dom/dom)
+(require dom)
 (require "dom.ss")
 (require "exn.ss")
 (provide (all-defined))

@@ -3,7 +3,7 @@
 #lang s-exp "swindle.ss"
 
 (require dom/swindle)
-(require dom/dom)
+(require dom)
 (require "client.ss")
 (require "dom.ss")
 (require "error.ss")

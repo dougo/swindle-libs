@@ -4,7 +4,7 @@
 
 (require (only "classes.ss" make-artist <release>
                <artist-list> <release-list> <track-list> <release-event>))
-(require dom/dom)
+(require dom)
 (require (only dom/swindle find-if-iterator))
 (require (only jabber/dom text-field))
 (provide (all-defined))

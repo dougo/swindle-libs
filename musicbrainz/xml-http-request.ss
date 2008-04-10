@@ -4,7 +4,7 @@
 (require (only net/head extract-all-fields))
 (require (only mzlib/port copy-port))
 (require (only srfi/13 string-drop))
-(require (only dom/dom read-dom))
+(require (only dom read-dom))
 (provide (all-defined))
 
 ;; Get an XML document from an HTTP URL.

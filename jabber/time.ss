@@ -6,7 +6,7 @@
 (require "dom.ss")
 (require "iq.ss")
 (require "stream.ss")
-(require dom/dom)
+(require dom)
 (provide (all-defined))
 
 (define *time-ns* "jabber:iq:time")

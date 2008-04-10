@@ -2,7 +2,7 @@
 
 #lang s-exp "swindle.ss"
 
-(require dom/dom)
+(require dom)
 (require (only dom/swindle find-if-iterator))
 (require (only dom/private
                <dom-implementation-impl> <xml-document> <element-ns>))
