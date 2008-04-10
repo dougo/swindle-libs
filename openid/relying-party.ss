@@ -14,7 +14,7 @@
 (require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
 
 (require (only scheme for/list in-lines))
-(require (only srfi/1 filter-map lset<=))
+(require (only srfi/1 drop-right filter-map lset<=))
 (require (only srfi/2 and-let*))
 (require (only mzlib/struct copy-struct))
 (require (only net/uri-codec alist->form-urlencoded))
@@ -31,7 +31,7 @@
 (defmethod (authenticate (make-login-page <function>))
   ;; TO DO: optional arguments: non-interactive, use associations,
   ;; form customization, realm
-  (let* (((values user-supplied-identifier base-uri)
+  (let* (((values user-supplied-identifier http-request)
           ;; Step 1.
           (initiate-authentication make-login-page))
          (discovered-info
@@ -40,7 +40,7 @@
          ;; TO DO: Step 3. (optionally establish an association)
          (assertion
           ;; Step 4.
-          (request-authentication base-uri discovered-info)))
+          (request-authentication (root-url http-request) discovered-info)))
     ;; (Steps 5 and 6 are performed by the OP.)
     (and (positive-assertion? assertion)
          ;; Step 7.
@@ -100,16 +100,27 @@
     (request-bindings request))
    (base-uri request)))
 
-;; Return the absolute base URI of an HTTP request, including the host.
+;; Return the absolute base URI of an HTTP request, including the authority.
 (defmethod (base-uri http-request)
-  (copy-struct
-   url (request-uri http-request)
+  (let ((relative-url (request-uri http-request)))
+    (copy-struct
+     url (root-url http-request)
+     (url-path (url-path relative-url))
+     (url-query (url-query relative-url)))))
+
+;; Return a URL containing the scheme and authority of an HTTP request.
+(defmethod (root-url http-request)
    ;; TO DO: what if https?
-   (url-scheme "http")
-   ;; TO DO: get user from headers?
-   ;; TO DO: error if no Host header, or use host-ip?
-   ;; TO DO: separate port from host
-   (url-host (cdr (assq 'host (request-headers http-request))))))
+   (string->url (concat "http://" (request-authority http-request) "/")))
+
+(defmethod (request-authority http-request)
+   ;; TO DO: user
+  (let ((host-ip (request-host-ip http-request))
+        (host-port (request-host-port http-request)))
+    (cond ((assq 'host (request-headers http-request)) => cdr)
+          ;; TO DO: what if https?
+          ((= host-port 80) host-ip)
+          (else (format "~a:~a" host-ip host-port)))))
 
 (defclass <indirectly-received-message> (<message>)
   request-url)
@@ -222,17 +233,16 @@
 
 ;;; 5.2. Indirect Communication
 
-(defmethod (communicate-indirectly (msg <message>) sender-url recipient-url)
+;; make-message should take a relative URL string to return to and
+;; return a <message>, which is sent indirectly to the recipient URL.
+
+(defmethod (communicate-indirectly (make-message <function>) recipient-url)
   ;; TO DO: let user choose between redirect and form redirect
   (check-indirect-response
    (http-request->message
     (send/suspend
      (lambda (k-url)
-       (redirect
-        (add-parameter
-         msg 'return_to
-         (url->string (combine-url/relative sender-url k-url)))
-        recipient-url))))))
+       (redirect (make-message k-url) recipient-url))))))
 
 ;;; 5.2.1. HTTP Redirect
 
@@ -259,9 +269,9 @@
 
 ;;; 7.1. Initiation
 
-;; initiate-authentication returns the user-supplied identifier, as
-;; well as the base-uri of the request, to be used for the return url
-;; in indirect communication.
+;; This presents a login page to the end user and returns the
+;; user-supplied identifier, as well as the HTTP request that was
+;; submitted.
 
 (defmethod (initiate-authentication (make-login-page <function>))
   (let ((http-request
@@ -270,7 +280,7 @@
             (make-login-page (make-end-user-form k-url))))))
     (values
      (extract-binding/single 'openid_identifier (request-bindings http-request))
-     (base-uri http-request))))
+     http-request)))
 
 (defmethod (make-end-user-form (k-url <string>)
                                &opt (icon-url "/images/openid-icon-small.gif"))
@@ -443,22 +453,46 @@
 ;;; 9. Requesting Authentication
 
 (defmethod (request-authentication sender-url (info <discovered-information>))
-  ;; TO DO: allow optional claimed-identifier, op-local-identifier
   ;; TO DO: allow extension parameters
-  ;; TO DO: checkid_immediate
-  (with-accessors info (op-endpoint-url claimed-identifier op-local-identifier)
-    (make-assertion
-     (communicate-indirectly
-      (make-message
-       ;; TO DO: should we use the protocol-version as the namespace?
-       `((ns . ,(namespace version-2.0))
-         (mode . "checkid_setup")
-         ;; TO DO: identifier_select
-         (claimed_id . ,(url->string claimed-identifier))
-         (identity . ,(url->string (or op-local-identifier
-                                       claimed-identifier)))))
-      sender-url op-endpoint-url)
-     info)))
+  (make-assertion
+   (communicate-indirectly
+    (lambda (k-url)
+      (make-authentication-request
+       (combine-url/relative sender-url k-url)
+       ;; TO DO: only remove the last one or two path segments of return-url?
+       sender-url info))
+    (op-endpoint-url info))
+   info))
+
+;;; 9.1. Request Parameters
+
+;; return-url must be absolute, including the host, and realm-url must
+;; be a prefix with no fragment (possibly with a wild-card at the
+;; beginning of the host).
+
+(defmethod (make-authentication-request
+            return-url realm-url (info <discovered-information>))
+  (with-accessors info (claimed-identifier op-local-identifier)
+    (make-message
+     ;; TO DO: should we use the protocol-version as the namespace?
+     `((ns . ,(namespace version-2.0))
+       (mode . "checkid_setup")
+       ;; TO DO: identifier_select
+       (claimed_id . ,(url->string claimed-identifier))
+       (identity . ,(url->string (or op-local-identifier
+                                     claimed-identifier)))
+       (return_to . ,(url->string return-url))
+       (realm . ,(url->string realm-url))
+       ;; 1.1 compatibility:
+       (trust_root . ,(url->string realm-url))))))
+
+;;; 9.2. Realms
+
+;; TO DO
+
+;;; 9.3. Immediate Requests
+
+;; TO DO
 
 ;;; 10. Responding to Authentication Requests
 
@@ -520,7 +554,6 @@
 
 ;; TO DO: should this raise exceptions to distinguish the failure cases?
 (defmethod (verify-assertion (assertion <positive-assertion>))
-  (echo :w assertion)
   (and (verify-return-url assertion)
        (verify-discovered-information assertion)
        (check-nonce assertion)
@@ -594,7 +627,6 @@
          (communicate-directly
           (add-parameter (message assertion) 'mode "check_authentication")
           (op-endpoint-url (discovered-info assertion)))))
-    (echo :w response)
     ;; TO DO: check invalidate_handle
     (equal? "true" (ref response 'is_valid))))
 
