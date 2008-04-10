@@ -1,0 +1,54 @@
+Copyright 2008 Doug Orleans.  This program is distributed under the
+terms of the GNU Affero General Public License.  See the file COPYING
+for details.
+
+This package lets a PLT Scheme web-server servlet act as an OpenID
+Relying Party ("A Web application that wants proof that the end user
+controls an Identifier").  This means the servlet does not need to
+store passwords-- any password authentication is handled by direct
+communication between the end user and an OpenID Provider.  A user can
+get an Identifier from a Provider where the user already has a
+password-protected account, e.g. Yahoo, AOL/AIM, or LiveJournal, or
+open a new account with a dedicated Provider like myOpenId.  See
+http://openid.net/get/ for more info.
+
+>(authenticate make-login-page) -> (or/c false/c authentication?)
+make-login-page : (xexpr? . -> . response?)
+
+The authenticate function asks the end user for an identifier and
+attempts to authenticate it with an OpenID Provider.  If the
+authentication is approved, this function returns an authentication
+object containing the verified identifier and any extension parameters
+in the authentication response; otherwise, it returns false.
+
+The make-login-page function is called with an HTTP form xexpr and
+should return an HTTP response to be presented to the end user.
+For example:
+
+(authenticate
+ (lambda (form)
+   `(html (head (title "Login with OpenID"))
+          (body (h1 "Login with OpenID")
+                (p "Please enter your OpenID identifier.")
+                (p ,form)))))
+
+>(authentication? x) -> boolean?
+x : any/c
+
+Determines whether an object is an OpenID authentication.
+
+>(claimed-identifier authentication) -> (or url? #f)
+authentication : authentication?
+
+The claimed-identifier of an authentication is the verified Identifier
+for the end user and should be used as a key for local storage of
+information about the user.  The Identifier URL may include a
+fragment, e.g. if the OpenID Provider recycles Identifiers; the
+fragment should be considered part of the key, but it may be omitted
+when displaying the Identifier to the user.
+
+>(extension-parameters authentication) -> (listof (cons/c symbol? string?))
+authentication : authentication?
+
+Extracts the association list of extension parameters from an
+authentication.
