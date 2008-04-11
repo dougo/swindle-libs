@@ -197,7 +197,7 @@
   (call/input-url/follow-redirects
    op-endpoint-url
    (lambda (url) (send-direct-request msg url))
-   (lambda (url head in) (read-direct-response msg url head in))))
+   (lambda (url head in) (read-direct-response msg head in))))
 
 ;; connect should take a URL and return an impure port.  handle should
 ;; take a URL, HTTP response head (string), and a pure port.
@@ -236,7 +236,7 @@
 
 ;;; 5.1.2. Direct Response
 
-(defmethod (read-direct-response (msg <message>) url (head <string>)
+(defmethod (read-direct-response (msg <message>) (head <string>)
                                  (in <input-port>))
   (let ((status-code (status-code head)))
     (case status-code
