@@ -194,10 +194,37 @@
 
 (defmethod (communicate-directly (msg <message>) op-endpoint-url)
   ;; TO DO: handle errors, e.g. tcp-read
-  (call/input-url
+  (call/input-url/follow-redirects
    op-endpoint-url
    (lambda (url) (send-direct-request msg url))
-   (lambda (in) (read-direct-response msg op-endpoint-url in))))
+   (lambda (url head in) (read-direct-response msg url head in))))
+
+;; connect should take a URL and return an impure port.  handle should
+;; take a URL, HTTP response head (string), and a pure port.
+;; TO DO: set a timeout to avoid tarpits
+(defmethod (call/input-url/follow-redirects
+            url (connect <function>) (handle <function>))
+  (let loop ((url url))
+    (let ((head #f) (redirect-url #f))
+      (let (((connect url)
+             (let ((in (connect url)))
+               (let loop ()
+                 (set! head (purify-port in))
+                 (case (quotient (status-code head) 100)
+                   ((1) (loop))
+                   ((3) (set! redirect-url (redirection-url url head)) in)
+                   (else in)))))
+            ((handle in)
+             (if redirect-url
+                 (loop redirect-url)
+                 (handle url head in))))
+        (call/input-url url connect handle)))))
+
+(defmethod (status-code (head <string>))
+  (as <number> (second (regexp-match #rx" ([0-9][0-9][0-9])" head))))
+
+(defmethod (redirection-url url (head <string>))
+  (combine-url/relative url (extract-field "Location" head)))
 
 ;;; 5.1.1. Direct Request
 
@@ -209,27 +236,17 @@
 
 ;;; 5.1.2. Direct Response
 
-(defmethod (read-direct-response (msg <message>) url (in <input-port>))
-  (let* ((head (purify-port in))
-         (status-code (status-code head)))
-    (case (quotient status-code 100)
-      ((1) (read-direct-response msg in))
-      ((3) (communicate-directly msg (redirection-url url head)))
+(defmethod (read-direct-response (msg <message>) url (head <string>)
+                                 (in <input-port>))
+  (let ((status-code (status-code head)))
+    (case status-code
+      ((200) (read-key-value-form in))
+      ;; TO DO: format error/contact/reference
+      ((400) (raise (read-key-value-form in) #t))
       (else
-       (case status-code
-         ((200) (read-key-value-form in))
-         ;; TO DO: format error/contact/reference
-         ((400) (raise (read-key-value-form in) #t))
-         (else
-          ;; TO DO: raise exception structure with head and body
-          (error 'read-direct-response
-                 "Unexpected status code: ~a" status-code)))))))
-
-(defmethod (status-code (head <string>))
-  (as <number> (second (regexp-match #rx" ([0-9][0-9][0-9])" head))))
-
-(defmethod (redirection-url url (head <string>))
-  (combine-url/relative url (extract-field "Location" head)))
+       ;; TO DO: raise exception structure with head and body
+       (error 'read-direct-response
+              "Unexpected status code: ~a" status-code)))))
 
 ;;; 5.2. Indirect Communication
 
@@ -334,28 +351,18 @@
                   ((up) (if (null? output-path) null (cdr output-path)))
                   (else (cons segment output-path))))))))
 
-
 ;;; 7.3 Discovery
 
 (defmethod (perform-discovery normalized-identifier)
   ;; TO DO: XRI
   ;; TO DO: Yadis
-  (let-values (((claimed-identifier pure-port)
-                ;; TO DO: set a timeout to avoid tarpits
-                (follow-redirects normalized-identifier)))
-    (perform-html-based-discovery claimed-identifier pure-port)))
-
-(defmethod (follow-redirects url)
-  (let ((in (get-impure-port url)))
-    (let loop ()
-      (let ((head (purify-port in)))
-        (case (quotient (status-code head) 100)
-          ((1) (loop))
-          ((2) (values url in))
-          ((3) (follow-redirects (normalize-url (redirection-url url head))))
-          ;; TO DO: make exception structure
-          (else (error 'follow-redirects head)))))))
-
+  (call/input-url/follow-redirects
+   normalized-identifier get-impure-port
+   (lambda (claimed-identifier head pure-port)
+     (if (= 2 (quotient (status-code head) 100))
+         (perform-html-based-discovery claimed-identifier pure-port)
+         ;; TO DO: make exception structure
+         (error 'perform-discovery head)))))
 
 ;;; 7.3.1. Discovered Information
 
