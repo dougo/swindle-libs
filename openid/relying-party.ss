@@ -20,6 +20,7 @@
 (require (only net/uri-codec alist->form-urlencoded))
 
 (require "http.ss")
+(require "html.ss")
 
 (-defclass-auto-initargs- (:auto true))
 (-defclass-autoaccessors-naming- :slot)
@@ -400,27 +401,6 @@
 
 (define signon-2.0 (string->url "http://specs.openid.net/auth/2.0/signon"))
 (define signon-1.1 (string->url "http://openid.net/signon/1.1"))
-
-;; token -> boolean
-(defmethod (start-tag-token? token)
-  (memq (shtml-token-kind token) '(*START* *EMPTY*)))
-
-;; tag-token -> symbol
-(defmethod (tag (token <list>))
-  (if (eq? '*START* (shtml-token-kind token))
-      (first token)
-      (second token)))
-
-;; normalized-start-tag-token -> (list (list symbol string) ...)
-(defmethod (attributes (token <list>))
-  (cdr (if (eq? '*START* (shtml-token-kind token))
-           (second token)
-           (third token))))
-
-;; normalized-start-tag-token symbol -> (or string #f)
-(defmethod (attribute (token <list>) (name <symbol>))
-  (let ((attr (assq name (attributes token))))
-    (if attr (second attr) #f)))
 
 ;; string -> (or url #f)
 (defmethod (maybe-string->url (str <string>))
