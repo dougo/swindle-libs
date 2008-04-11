@@ -301,7 +301,29 @@
 (defmethod (normalize-url u)
   ;; TO DO: reject non-http[s] schemes?
   ;; TO DO: error if host is not FQDN
-  (combine-url/relative u "."))
+  (copy-struct
+   url u
+   (url-path-absolute? #t)
+   (url-path
+    (if (null? (url-path u))
+        ;; Add trailing slash.
+        (list (make-path/param "" null))
+        (remove-dot-segments (url-path u))))
+   ;; Remove fragment part.
+   (url-fragment #f)))
+
+;; RFC 3986 (URI) 5.2.4. Remove Dot Segments
+;; (list path/param ...) -> (list path/param ...)
+(defmethod (remove-dot-segments (path <list>))
+  (let loop ((path path) (output-path null))
+    (if (null? path)
+        (reverse output-path)
+        (let ((segment (car path)))
+          (loop (cdr path)
+                (case (path/param-path segment)
+                  ((same) output-path)
+                  ((up) (if (null? output-path) null (cdr output-path)))
+                  (else (cons segment output-path))))))))
 
 ;;; 7.3 Discovery
 
