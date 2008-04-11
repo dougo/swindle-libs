@@ -18,7 +18,8 @@
 (require (only srfi/2 and-let*))
 (require (only mzlib/struct copy-struct))
 (require (only net/uri-codec alist->form-urlencoded))
-(require (only net/head extract-field))
+
+(require "http.ss")
 
 (-defclass-auto-initargs- (:auto true))
 (-defclass-autoaccessors-naming- :slot)
@@ -198,33 +199,6 @@
    op-endpoint-url
    (lambda (url) (send-direct-request msg url))
    (lambda (url head in) (read-direct-response msg head in))))
-
-;; connect should take a URL and return an impure port.  handle should
-;; take a URL, HTTP response head (string), and a pure port.
-;; TO DO: set a timeout to avoid tarpits
-(defmethod (call/input-url/follow-redirects
-            url (connect <function>) (handle <function>))
-  (let loop ((url url))
-    (let ((head #f) (redirect-url #f))
-      (let (((connect url)
-             (let ((in (connect url)))
-               (let loop ()
-                 (set! head (purify-port in))
-                 (case (quotient (status-code head) 100)
-                   ((1) (loop))
-                   ((3) (set! redirect-url (redirection-url url head)) in)
-                   (else in)))))
-            ((handle in)
-             (if redirect-url
-                 (loop redirect-url)
-                 (handle url head in))))
-        (call/input-url url connect handle)))))
-
-(defmethod (status-code (head <string>))
-  (as <number> (second (regexp-match #rx" ([0-9][0-9][0-9])" head))))
-
-(defmethod (redirection-url url (head <string>))
-  (combine-url/relative url (extract-field "Location" head)))
 
 ;;; 5.1.1. Direct Request
 
