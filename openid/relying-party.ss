@@ -21,6 +21,7 @@
 
 (require "http.ss")
 (require "html.ss")
+(require "yadis.ss")
 
 (-defclass-auto-initargs- (:auto true))
 (-defclass-autoaccessors-naming- :slot)
@@ -330,14 +331,17 @@
 
 (defmethod (perform-discovery normalized-identifier)
   ;; TO DO: XRI
-  ;; TO DO: Yadis
-  (call/input-url/follow-redirects
-   normalized-identifier get-impure-port
-   (lambda (claimed-identifier head pure-port)
-     (if (= 2 (quotient (status-code head) 100))
-         (perform-html-based-discovery claimed-identifier pure-port)
-         ;; TO DO: make exception structure
-         (error 'perform-discovery head)))))
+  (let (((values claimed-identifier xrds-document)
+         (resolve-yadis-url normalized-identifier)))
+    (or (and xrds-document
+             (perform-xrds-based-discovery claimed-identifier xrds-document))
+        (call/input-url/follow-redirects
+         normalized-identifier get-impure-port
+         (lambda (claimed-identifier head in)
+           (if (= 2 (quotient (status-code head) 100))
+               (perform-html-based-discovery claimed-identifier in)
+               ;; TO DO: make exception structure
+               (error 'perform-discovery head)))))))
 
 ;;; 7.3.1. Discovered Information
 
@@ -347,9 +351,52 @@
   claimed-identifier
   op-local-identifier)
 
+(define identifier-select
+  (string->url "http://specs.openid.net/auth/2.0/identifier_select"))
+
 ;;; 7.3.2. XRDS-Based Discovery
 
-;; TO DO
+(defmethod (perform-xrds-based-discovery
+            claimed-identifier (xrds-document <list>))
+  (extract-authentication-data claimed-identifier xrds-document))
+
+;;; 7.3.2.1.1. OP Identifier Element
+
+(define op-identifier-type "http://specs.openid.net/auth/2.0/server")
+
+(defmethod (search-for-op-identifier-element (xrds-document <list>))
+  (and-let* ((services (services xrds-document op-identifier-type))
+             ((not (null? services)))
+             (service (car services))
+             (op-endpoint-url-string (property service "URI" xrd-ns)))
+    (make-discovered-information
+     (string->url op-endpoint-url-string)
+     (string->url op-identifier-type)
+     #f #f)))
+
+;;; 7.3.2.1.2. Claimed Identifier Element
+
+(define claimed-identifier-type "http://specs.openid.net/auth/2.0/signon")
+
+(defmethod (search-for-claimed-identifier-element
+            claimed-identifier (xrds-document <list>))
+  (and-let* ((services (services xrds-document claimed-identifier-type))
+             ((not (null? services)))
+             (service (car services))
+             (op-endpoint-url-string (property service "URI" xrd-ns)))
+    (make-discovered-information
+     (string->url op-endpoint-url-string)
+     (string->url op-identifier-type)
+     claimed-identifier
+     (and-let* ((op-local-identifier (property service "LocalID" xrd-ns)))
+       (string->url op-local-identifier)))))
+
+;;; 7.3.2.2 Extracting Authentication Data
+
+(defmethod (extract-authentication-data
+            claimed-identifier (xrds-document <list>))
+  (or (search-for-op-identifier-element xrds-document)
+      (search-for-claimed-identifier-element claimed-identifier xrds-document)))
 
 ;;; 7.3.3. HTML-Based Discovery
 
@@ -438,10 +485,12 @@
      ;; TO DO: should we use the protocol-version as the namespace?
      `((ns . ,(namespace version-2.0))
        (mode . "checkid_setup")
-       ;; TO DO: identifier_select
-       (claimed_id . ,(url->string claimed-identifier))
+       ;; TO DO: extension parameters
+       (claimed_id . ,(url->string (or claimed-identifier
+                                       identifier-select)))
        (identity . ,(url->string (or op-local-identifier
-                                     claimed-identifier)))
+                                     claimed-identifier
+                                     identifier-select)))
        (return_to . ,(url->string return-url))
        (realm . ,(url->string realm-url))
        ;; 1.1 compatibility:
@@ -553,14 +602,26 @@
             (set! info (perform-discovery claimed-identifier-in-assertion))
             (set! (discovered-info assertion) info))
           ;; TO DO: XRDS discovery info must be in one <xrd:Service> element
-          (and (url=? (claimed-identifier info)
-                      claimed-identifier-in-assertion)
-               (url=? (op-local-identifier info)
-                      (string->url (ref assertion 'identity)))
-               (url=? (op-endpoint-url info)
-                      (string->url (ref assertion 'op_endpoint)))
-               (url=? (protocol-version info)
-                      (string->url (ref assertion 'ns))))))))
+          (and (url=? (claimed-identifier info) claimed-identifier-in-assertion)
+               (let ((discovered-op-local-identifier (op-local-identifier info))
+                     (response-op-local-identifier (ref assertion 'identity)))
+                 (and (or (equal? response-op-local-identifier
+                                  (url->string claimed-identifier-in-assertion))
+                          (and discovered-op-local-identifier
+                               (equal? (url->string
+                                        discovered-op-local-identifier)
+                                       response-op-local-identifier)))
+                      (equal? (url->string (op-endpoint-url info))
+                              (ref assertion 'op_endpoint))
+                      ;; TO DO: this part of the spec seems wrong!
+                      ;; The ns should always be
+                      ;; "http://specs.openid.net/auth/2.0", but the
+                      ;; protocol-version will either be
+                      ;; "http://specs.openid.net/auth/2.0/server" or
+                      ;; "http://specs.openid.net/auth/2.0/signon".
+                      ;; (equal? (url->string (protocol-version info))
+                      ;;         (ref assertion 'ns))
+                      )))))))
 
 (defmethod (url=? url1 url2)
   (and (url? url1) (url? url2)
@@ -633,4 +694,3 @@
 ;;; 13. Discovering OpenID Relying Parties
 
 ;; TO DO
-

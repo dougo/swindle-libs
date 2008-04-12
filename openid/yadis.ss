@@ -9,21 +9,28 @@
 (provide (all-defined))
 
 (require net/url)
-(require (only xml read-xml))
+(require (only scheme for/first))
 (require (only net/head extract-field))
 (require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
+(require (planet "sxml.ss" ("lizorkin" "sxml.plt" 2)))
+(require (planet "ssax.ss" ("lizorkin" "ssax.plt" 2)))
+
 (require "http.ss")
 (require "html.ss")
 
+(-defclass-auto-initargs- (:auto true))
+(-defclass-autoaccessors-naming- :slot)
+
 ;;; Yadis 1.0: http://yadis.org/wiki/Yadis_1.0_%28HTML%29
 
-;; url -> (or document #f)
+;; url -> url (or document #f)
 (defmethod (resolve-yadis-url yadis-url)
-  (let (((values yadis-url yadis-resource-descriptor-url)
+  (let (((values redirected-url yadis-resource-descriptor-url)
          (get-yadis-resource-descriptor-url yadis-url)))
-    (if yadis-resource-descriptor-url
-        (get-yadis-document yadis-resource-descriptor-url)
-        (resolve-yadis-url-body yadis-url))))
+    (values redirected-url
+            (if yadis-resource-descriptor-url
+                (get-yadis-document yadis-resource-descriptor-url)
+                (resolve-yadis-url-body redirected-url)))))
 
 ;; url -> (or url #f)
 (defmethod (get-yadis-resource-descriptor-url yadis-url)
@@ -67,4 +74,24 @@
 
 ;; input-port -> (or document #f)
 (defmethod (read-yadis-document (in <input-port>))
-  (read-xml in))
+  (ssax:xml->sxml in null))
+
+(define xrd-ns "xri://$xrd*($v*2.0)")
+
+(define yadis-service-nodes
+  (sxpath "xrds:XRDS/xrd:XRD[last()]/xrd:Service[xrd:Type=$type]"
+          `((xrds . "xri://$xrds") (xrd . ,xrd-ns))))
+
+(defmethod (services (yadis-document <list>) (type <string>))
+  (map node->service (yadis-service-nodes yadis-document `((type . ,type)))))
+
+(defmethod (node->service (node <list>))
+  (make-service (sxml:content node)))
+
+(defclass <service> () properties)
+
+(defmethod (property (service <service>) (name <string>) (ns <string>))
+  (for/first ((node (properties service))
+              #:when (and (equal? name (sxml:ncname node))
+                          (equal? ns (sxml:name->ns-id (sxml:name node)))))
+    (sxml:text node)))
