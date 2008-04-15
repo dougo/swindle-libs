@@ -8,13 +8,13 @@
 
 (provide (all-defined))
 
-(require net/url)
 (require (only scheme for/first))
 (require (only net/head extract-field))
 (require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
 (require (planet "sxml.ss" ("lizorkin" "sxml.plt" 2)))
 (require (planet "ssax.ss" ("lizorkin" "ssax.plt" 2)))
 
+(require "url.ss")
 (require "http.ss")
 (require "html.ss")
 
@@ -32,7 +32,7 @@
                 (get-yadis-document yadis-resource-descriptor-url)
                 (resolve-yadis-url-body redirected-url)))))
 
-;; url -> (or url #f)
+;; url -> url (or url #f)
 (defmethod (get-yadis-resource-descriptor-url yadis-url)
   (call/input-url/follow-redirects
    yadis-url head-impure-port
@@ -44,13 +44,19 @@
 ;; url -> (or document #f)
 (defmethod (resolve-yadis-url-body yadis-url)
   (call/input-url/follow-redirects
-   yadis-url get-impure-port
+   yadis-url
+   (lambda (url) (get-impure-port url (list accept-header)))
    (lambda (url head in)
-     (if (string=? (extract-field "Content-Type" head) "application/xrds+xml")
+     (if (string=? (extract-field "Content-Type" head) xrds-mime-type)
          (read-yadis-document in)
          (cond ((read-yadis-resource-descriptor-url url in)
                 => get-yadis-document)
                (else #f))))))
+
+(define xrds-mime-type "application/xrds+xml")
+(define accept-header
+  (concat "Accept: " xrds-mime-type
+          ", application/xhtml+xml; q=0.9, text/html; q=0.8"))
 
 ;; url input-port -> (or url #f)
 (defmethod (read-yadis-resource-descriptor-url base-uri (in <input-port>))

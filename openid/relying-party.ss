@@ -9,7 +9,6 @@
 (provide (all-defined))
 
 (require srfi/13)
-(require net/url)
 (require web-server/servlet)
 (require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
 
@@ -19,6 +18,7 @@
 (require (only mzlib/struct copy-struct))
 (require (only net/uri-codec alist->form-urlencoded))
 
+(require "url.ss")
 (require "http.ss")
 (require "html.ss")
 (require "yadis.ss")
