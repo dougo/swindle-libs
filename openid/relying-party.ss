@@ -45,9 +45,12 @@
           ;; Step 4.
           (request-authentication (root-url http-request) discovered-info)))
     ;; (Steps 5 and 6 are performed by the OP.)
-    (and (positive-assertion? assertion)
-         ;; Step 7.
-         (verify-assertion assertion))))
+    (unless (positive-assertion? assertion)
+      ;; TO DO: make an exception structure hierarchy
+      (raise-user-error
+       'authenticate "Authentication was denied by the OpenID Provider."))
+    ;; Step 7.
+    (verify-assertion assertion)))
 
 ;;; 4. Data Formats
 
@@ -74,8 +77,8 @@
 (defmethod (read-key-value-form (in <input-port>))
   (make-message
    (for/list ((key-value (in-lines in 'linefeed))
-              ;; There shouldn't be any blank lines, but LiveJournal
-              ;; sometimes appends one.
+              ;; There shouldn't be any blank lines according to the
+              ;; spec, but LiveJournal sometimes appends one.
               #:when (not (string-null? key-value)))
      (let ((colon (string-index key-value #\:)))
        (unless colon
@@ -562,15 +565,14 @@
 
 ;;; 11. Verifying Assertions
 
-;; TO DO: should this raise exceptions to distinguish the failure cases?
 (defmethod (verify-assertion (assertion <positive-assertion>))
-  (and (verify-return-url assertion)
-       (verify-discovered-information assertion)
-       (check-nonce assertion)
-       (verify-signature assertion)
-       (make-authentication
-        (claimed-identifier assertion)
-        (extension-parameters assertion))))
+  (verify-return-url assertion)
+  (verify-discovered-information assertion)
+  (check-nonce assertion)
+  (verify-signature assertion)
+  (make-authentication
+   (claimed-identifier assertion)
+   (extension-parameters assertion)))
 
 (defclass <authentication> () claimed-identifier extension-parameters)
 
@@ -581,51 +583,77 @@
     (url->string (copy-struct url u (url-query null) (url-fragment #f))))
   (let ((return-url (string->url (ref assertion 'return_to)))
         (assertion-url (request-url assertion)))
-    (and (string=? (url-scheme-authority-and-path return-url)
-                   (url-scheme-authority-and-path assertion-url))
-         (lset<= equal? (url-query return-url) (url-query assertion-url)))))
+    (unless (and (string=? (url-scheme-authority-and-path return-url)
+                           (url-scheme-authority-and-path assertion-url))
+                 (lset<= equal?
+                         (url-query return-url)
+                         (url-query assertion-url)))
+      (assertion-does-not-match-discovered 'verify-return-url "return URL"))))
 
 ;;; 11.2. Verifying Discovered Information
 
 (defmethod (verify-discovered-information (assertion <positive-assertion>))
   (let ((claimed-identifier-in-assertion (ref assertion 'claimed_id))
         (info (discovered-info assertion)))
-    (or (not claimed-identifier-in-assertion)
-        (let ((claimed-identifier-in-assertion
-               (copy-struct
-                url (string->url claimed-identifier-in-assertion)
-                (url-fragment #f))))
-          ;; If the Claimed Identifier was not previously discovered,
-          ;; perform discovery to make sure the OP is authorized to make
-          ;; assertions about the Claimed Identifier.
-          (unless (claimed-identifier info)
-            (set! info (perform-discovery claimed-identifier-in-assertion))
-            (set! (discovered-info assertion) info))
-          ;; TO DO: XRDS discovery info must be in one <xrd:Service> element
-          (and (url=? (claimed-identifier info) claimed-identifier-in-assertion)
-               (let ((discovered-op-local-identifier (op-local-identifier info))
-                     (response-op-local-identifier (ref assertion 'identity)))
-                 (and (or (equal? response-op-local-identifier
-                                  (url->string claimed-identifier-in-assertion))
-                          (and discovered-op-local-identifier
-                               (equal? (url->string
-                                        discovered-op-local-identifier)
-                                       response-op-local-identifier)))
-                      (equal? (url->string (op-endpoint-url info))
-                              (ref assertion 'op_endpoint))
-                      ;; TO DO: this part of the spec seems wrong!
-                      ;; The ns should always be
-                      ;; "http://specs.openid.net/auth/2.0", but the
-                      ;; protocol-version will either be
-                      ;; "http://specs.openid.net/auth/2.0/server" or
-                      ;; "http://specs.openid.net/auth/2.0/signon".
-                      ;; (equal? (url->string (protocol-version info))
-                      ;;         (ref assertion 'ns))
-                      )))))))
+    (when claimed-identifier-in-assertion
+      (let ((claimed-identifier-in-assertion
+             (copy-struct
+              url (string->url claimed-identifier-in-assertion)
+              (url-fragment #f))))
+        ;; If the Claimed Identifier was not previously discovered,
+        ;; perform discovery to make sure the OP is authorized to make
+        ;; assertions about the Claimed Identifier.
+        (unless (claimed-identifier info)
+          (set! info (perform-discovery claimed-identifier-in-assertion))
+          (set! (discovered-info assertion) info))
+        ;; TO DO: XRDS discovery info must be in one <xrd:Service> element
+        (verify-claimed-identifier info claimed-identifier-in-assertion)
+        (verify-op-local-identifier info assertion
+                                    claimed-identifier-in-assertion)
+        (verify-op-endpoint-url info assertion)
+        ;; TO DO: this part of the spec seems wrong!
+        ;; The ns should always be "http://specs.openid.net/auth/2.0",
+        ;; but the protocol-version will either be
+        ;; "http://specs.openid.net/auth/2.0/server" or
+        ;; "http://specs.openid.net/auth/2.0/signon".
+        ;;
+        ;; (equal? (url->string (protocol-version info))
+        ;;         (ref assertion 'ns))
+        ))))
 
-(defmethod (url=? url1 url2)
-  (and (url? url1) (url? url2)
-       (string=? (url->string url1) (url->string url2))))
+(defmethod (verify-claimed-identifier (info <discovered-information>)
+                                      claimed-identifier-in-assertion)
+  (unless (equal? (url->string (claimed-identifier info))
+                  (url->string claimed-identifier-in-assertion))
+    (assertion-does-not-match-discovered
+     'verify-claimed-identifier "Claimed Identifier")))
+
+(defmethod (verify-op-local-identifier (info <discovered-information>)
+                                       (assertion <positive-assertion>)
+                                       claimed-identifier-in-assertion)
+  (let ((discovered-op-local-identifier (op-local-identifier info))
+        (response-op-local-identifier (ref assertion 'identity)))
+    (unless (or (equal? response-op-local-identifier
+                        (url->string claimed-identifier-in-assertion))
+                (and discovered-op-local-identifier
+                     (equal? (url->string discovered-op-local-identifier)
+                             response-op-local-identifier)))
+      (assertion-does-not-match-discovered
+       'verify-op-local-identifier "OP-Local Identifier"))))
+
+(defmethod (verify-op-endpoint-url (info <discovered-information>)
+                                   (assertion <positive-assertion>))
+  (unless (equal? (url->string (op-endpoint-url info))
+                  (ref assertion 'op_endpoint))
+    (assertion-does-not-match-discovered
+     'verify-op-endpoint-url "OP Endpoint URL")))
+
+(defmethod (assertion-does-not-match-discovered
+            (function <symbol>) (info <string>))
+  (raise-user-error
+   function
+   "The ~a in the OpenID Provider assertion does not match the discovered one."
+   info))
 
 ;;; 11.3. Checking the Nonce
 
@@ -636,7 +664,7 @@
 ;;; 11.4. Verifying Signatures
 
 (defmethod (verify-signature (assertion <positive-assertion>))
-  (verify-directly assertion))
+  (verify-signature-directly assertion))
 
 ;; 11.4.1. Verifying with an Association
 
@@ -644,13 +672,17 @@
 
 ;; 11.4.2. Verifying Directly with the OpenID Provider
 
-(defmethod (verify-directly (assertion <positive-assertion>))
+(defmethod (verify-signature-directly (assertion <positive-assertion>))
   (let ((response
          (communicate-directly
           (add-parameter (message assertion) 'mode "check_authentication")
           (op-endpoint-url (discovered-info assertion)))))
     ;; TO DO: check invalidate_handle
-    (equal? "true" (ref response 'is_valid))))
+    (unless (equal? "true" (ref response 'is_valid))
+      (raise-user-error
+       'verify-signature-directly
+       "The signature in the OpenID Provider assertion could not be verified."
+       ))))
 
 ;;; 11.5. Identifying the end user
 

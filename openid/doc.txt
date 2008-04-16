@@ -12,14 +12,14 @@ password-protected account, e.g. Yahoo, AOL/AIM, or LiveJournal, or
 open a new account with a dedicated Provider like myOpenId.  See
 http://openid.net/get/ for more info.
 
->(authenticate make-login-page) -> (or/c false/c authentication?)
+>(authenticate make-login-page) -> authentication?
 make-login-page : (xexpr? . -> . response?)
 
 The authenticate function asks the end user for an identifier and
 attempts to authenticate it with an OpenID Provider.  If the
 authentication is approved, this function returns an authentication
 object containing the verified identifier and any extension parameters
-in the authentication response; otherwise, it returns false.
+in the authentication response; otherwise, it raises a user error.
 
 The make-login-page function is called with an HTTP form xexpr and
 should return an HTTP response to be presented to the end user.
