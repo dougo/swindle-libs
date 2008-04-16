@@ -10,7 +10,7 @@
 
 (require srfi/13)
 (require web-server/servlet)
-(require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
+(require (planet neil/htmlprag:1/htmlprag))
 
 (require (only scheme for/list in-lines))
 (require (only srfi/1 drop-right filter-map lset<=))

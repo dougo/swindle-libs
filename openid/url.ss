@@ -1,3 +1,9 @@
+;; url.ss -- plug-in replacement for net/url with HTTPS support.
+
+;; Copyright 2008 Doug Orleans.  This program is distributed under the
+;; terms of the GNU Affero General Public License.  See the file
+;; COPYING for details.
+
 #lang scheme
 
 (require scheme/unit)

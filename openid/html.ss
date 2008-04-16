@@ -8,7 +8,7 @@
 
 (provide (all-defined))
 
-(require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
+(require (planet neil/htmlprag:1/htmlprag))
 
 ;; token -> boolean
 (defmethod (start-tag-token? token)

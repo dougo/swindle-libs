@@ -10,9 +10,9 @@
 
 (require (only scheme for/first))
 (require (only net/head extract-field))
-(require (planet "htmlprag.ss" ("neil" "htmlprag.plt" 1)))
-(require (planet "sxml.ss" ("lizorkin" "sxml.plt" 2)))
-(require (planet "ssax.ss" ("lizorkin" "ssax.plt" 2)))
+(require (planet neil/htmlprag:1/htmlprag))
+(require (planet lizorkin/sxml:2/sxml))
+(require (planet lizorkin/ssax:2/ssax))
 
 (require "url.ss")
 (require "http.ss")
