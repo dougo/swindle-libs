@@ -26,7 +26,8 @@
                      #'name (symbol-append '< (syntax-e #'name) '>)  #'name))
                    (condition
                     (datum->syntax-object
-                     #'name (symbol->string (syntax-e #'name)) #'name)))
+                     #'name (string->immutable-string
+			     (symbol->string (syntax-e #'name))) #'name)))
        #'(defelementclass (class-name <error-condition>)
            *stream-error-ns* condition)))))
 
