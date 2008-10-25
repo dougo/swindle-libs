@@ -16,6 +16,7 @@
 
 (defmethod (handle-iq-request (client <client>) (from <string>)
                               (payload <disco-info>))
-  (append-child!/xexpr payload '(identity ((category "client" "bot"))))
+  (append-child!/xexpr payload '(identity ((category "client")
+					   (type "bot"))))
   payload)
 
