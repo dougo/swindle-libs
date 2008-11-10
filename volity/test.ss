@@ -1,7 +1,7 @@
 (module test "swindle.ss"
   (require (all-except (lib "main.ss" "dom") <entity>))
   (provide (all-from (lib "main.ss" "dom")))
-  (require* (lib "jabber.ss" "jabber"))
+  (require* (lib "main.ss" "jabber"))
   (require* "volity.ss")
   (provide (all-defined))
 

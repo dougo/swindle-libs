@@ -1,5 +1,5 @@
 (module entity "swindle.ss"
-  (require (lib "jabber.ss" "jabber"))
+  (require (lib "main.ss" "jabber"))
   (provide (all-defined))
 
   (defclass <entity> (<client>)
