@@ -2,7 +2,7 @@
   (require (all-except (lib "main.ss" "dom") <entity>))
   (provide (all-from (lib "main.ss" "dom")))
   (require* (lib "main.ss" "jabber"))
-  (require* "volity.ss")
+  (require* "main.ss")
   (provide (all-defined))
 
   (define ronin #f)
