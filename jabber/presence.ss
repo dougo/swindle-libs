@@ -6,7 +6,7 @@
 (require "dom.ss")
 (require "stream.ss")
 (require "stanza.ss")
-(require dom)
+(require-dom)
 (provide (all-defined))
 
 (defmethod (become-available (client <client>) &key to show status priority)

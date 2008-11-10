@@ -8,7 +8,7 @@
 (require "iq.ss")
 (require "jid.ss")
 (require "stream.ss")
-(require dom)
+(require-dom)
 (provide (all-defined))
 
 (define *auth-ns* "jabber:iq:auth")

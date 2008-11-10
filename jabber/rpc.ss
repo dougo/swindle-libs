@@ -7,7 +7,7 @@
 (require "iq.ss")
 (require "jid.ss")
 (require "stream.ss")
-(require dom)
+(require-dom)
 (require (only net/base64 base64-decode))
 (require (only srfi/19 date->string string->date))
 (provide (all-defined))

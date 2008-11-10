@@ -1,9 +1,9 @@
 #lang s-exp "swindle.ss"
 
-(require dom)
 (require "dom.ss")
 (require "error.ss")
 (require "stream.ss")
+(require-dom)
 (provide (all-defined))
 
 ;; Abstract superclass for XML stanzas.

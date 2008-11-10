@@ -2,14 +2,13 @@
 
 #lang s-exp "swindle.ss"
 
-(require dom/swindle)
-(require dom)
 (require "client.ss")
 (require "dom.ss")
 (require "error.ss")
 (require "exn.ss")
 (require "stream.ss")
 (require "stanza.ss")
+(require-dom)
 (provide (all-defined))
 
 ;; Send an IQ request of type t (get or set) with payload p to a

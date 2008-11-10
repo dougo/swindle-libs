@@ -1,7 +1,7 @@
 #lang s-exp "swindle.ss"
 
 (require* "main.ss")
-(require* dom)
+(require-dom)
 (require (prefix xml: xml/xml))
 (provide (all-from xml/xml))
 (provide (all-defined))

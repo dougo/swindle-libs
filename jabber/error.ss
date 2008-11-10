@@ -1,9 +1,9 @@
 #lang s-exp "swindle.ss"
 
-(require dom)
 (require "dom.ss")
 (require "stream.ss")
 (require "exn.ss")
+(require-dom)
 (provide (all-defined))
 
 (defclass <jabber-error> (<jabber-element>))

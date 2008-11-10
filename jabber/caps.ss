@@ -6,7 +6,7 @@
 (require "dom.ss")
 (require "presence.ss")
 (require "stream.ss")
-(require dom)
+(require-dom)
 (provide (all-defined))
 
 (define *caps-ns* "http://jabber.org/protocol/caps")

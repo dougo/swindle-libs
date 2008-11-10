@@ -6,7 +6,7 @@
 (require "dom.ss")
 (require "jid.ss")
 (require "presence.ss")
-(require dom)
+(require-dom)
 (provide (all-defined))
 
 (define *muc-ns* "http://jabber.org/protocol/muc")

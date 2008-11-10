@@ -2,9 +2,11 @@
 
 #lang s-exp "swindle.ss"
 
-(require dom)
-(require (only dom/swindle find-if-iterator))
-(require (only dom/private
+(require (planet ryanc/require:1:3/require))
+(define-module dom (planet swindle-libs/dom:1:0))
+(require-dom)
+(require (only (planet swindle-libs/dom:1:0/swindle) find-if-iterator))
+(require (only (planet swindle-libs/dom:1:0/private)
                <dom-implementation-impl> <xml-document> <element-ns>))
 (require (only srfi/13 string-null?))
 (require-for-syntax (only srfi/13 string-index string-drop))

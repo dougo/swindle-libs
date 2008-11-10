@@ -3,9 +3,9 @@
 #lang s-exp "swindle.ss"
 
 (require (only srfi/13 string-prefix?))
-(require dom)
 (require "dom.ss")
 (require "exn.ss")
+(require-dom)
 (provide (all-defined))
 
 ;; Read from an input port until the first start tag.  Return a

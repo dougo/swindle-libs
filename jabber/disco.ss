@@ -5,7 +5,7 @@
 (require "client.ss")
 (require "dom.ss")
 (require "iq.ss")
-(require dom)
+(require-dom)
 (provide (all-defined))
 
 (define *disco-info-ns* "http://jabber.org/protocol/disco#info")

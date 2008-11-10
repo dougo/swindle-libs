@@ -3,7 +3,7 @@
 (require "dom.ss")
 (require "exn.ss")
 (require "read.ss")
-(require dom)
+(require-dom)
 (require mzlib/pretty)
 (require (prefix xml: xml/xml))
 (provide (all-defined))
