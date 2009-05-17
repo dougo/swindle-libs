@@ -68,8 +68,8 @@
            (xml:cdata->dom xml doc))
           ((xml:entity? xml)
            (xml:entity->dom xml doc))
-          ((xml:pi? xml)
-           (xml:pi->dom xml doc))
+          ((xml:p-i? xml)
+           (xml:p-i->dom xml doc))
           ((xml:comment? xml)
            (xml:comment->dom xml doc))
           (else
@@ -133,10 +133,10 @@
         (create-text-node doc (as <dom-string> string))
         (create-entity-reference doc (as <dom-string> text)))))
 
-(defmethod* (xml:pi->dom xml (doc <document>))
+(defmethod* (xml:p-i->dom xml (doc <document>))
   (create-processing-instruction
-   doc (as <dom-string> (xml:pi-target-name xml))
-   (as <dom-string> (xml:pi-instruction xml))))
+   doc (as <dom-string> (xml:p-i-target-name xml))
+   (as <dom-string> (xml:p-i-instruction xml))))
 
 (defmethod* (xml:comment->dom xml (doc <document>))
   (create-comment doc (as <dom-string> (xml:comment-text xml))))
@@ -151,8 +151,7 @@
             (dtd (push! xml misc2))
             ((xml:document-type? xml) (set! dtd xml))
             (else (push! xml misc))))
-    (xml:make-document (apply xml:make-prolog (reverse misc) dtd
-                              (reverse misc2))
+    (xml:make-document (xml:make-prolog (reverse misc) dtd (reverse misc2))
                        element (reverse misc3))))
 
 (defmethod (dom->xml (node <document-fragment>))
@@ -194,7 +193,7 @@
   (xml:make-entity 'dom 'dom (as <symbol> (node-name node))))
 
 (defmethod (dom->xml (node <processing-instruction>))
-  (xml:make-pi 'dom 'dom (as <symbol> (target node)) (data node)))
+  (xml:make-p-i 'dom 'dom (as <symbol> (target node)) (data node)))
 
 
 (defmethod (as (type = <dom-string>) (symbol <symbol>))
