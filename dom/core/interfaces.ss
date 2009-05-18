@@ -327,7 +327,7 @@
   ;; Attr removeAttributeNode(in Attr oldAttr) raises(DOMException)
   (remove-attribute-node! (old-attr <attr>))
   ;; NodeList getElementsByTagName(in DOMString name)
-  ;; [Defined in <document>.]
+  (elements-by-tag-name (tagname <dom-string>))
   ;; DOMString getAttributeNS(in DOMString namespaceURI,
   ;;                          in DOMString localName)
   (attribute-ns namespace-uri		;may be #f
@@ -353,7 +353,8 @@
   (set-attribute-node-ns! (new-attr <attr>))
   ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
   ;;                                 in DOMString localName)
-  ;; [Defined in <document>.]
+  (elements-by-tag-name-ns namespace-uri ;may be #f
+                           (local-name <dom-string>))
   ;; boolean hasAttribute(in DOMString name)
   (has-attribute? (name <dom-string>))
   ;; boolean hasAttributeNS(in DOMString namespaceURI,
@@ -361,7 +362,7 @@
   (has-attribute-ns? namespace-uri	;may be #f
                      (local-name <dom-string>))
   ;; readonly attribute TypeInfo schemaTypeInfo
-  ;; [Defined in <document>.]
+  ;; [Defined in <attr>.]
   ;; void setIdAttribute(in DOMString name, in boolean isId)
   ;;      raises(DOMException)
   (set-id-attribute! (name <dom-string>) id?)
@@ -530,7 +531,7 @@
   ;;                 raises(DOMException)
   (create-entity-reference (name <dom-string>))
   ;; NodeList getElementsByTagName(in DOMString tagname)
-  (elements-by-tag-name (tagname <dom-string>))
+  ;; [Defined in <element>.]
   ;; Node importNode(in Node importedNode, in boolean deep)
   ;;      raises(DOMException)
   (import-node (imported-node <node>) deep?)
@@ -546,8 +547,7 @@
                        (qualified-name <dom-string>))
   ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
   ;;                                 in DOMString localName)
-  (elements-by-tag-name-ns namespace-uri ;may be #f
-                           (local-name <dom-string>))
+  ;; [Defined in <element>.]
   ;; Element getElementById(in DOMString elementId)
   (element-by-id (element-id <dom-string>))
   ;; readonly attribute DOMString inputEncoding
