@@ -45,7 +45,6 @@
 ;; const unsigned short TYPE_MISMATCH_ERR              = 17
 (define *type-mismatch-err* 17)
 
-
 ;; interface DOMStringList
 (definterface <dom-string-list> ()
   ;; DOMString item(in unsigned long index)
@@ -55,7 +54,6 @@
   ;; boolean contains(in DOMString str)
   (contains? (str <dom-string>))
   )
-
 
 ;; interface NameList
 (definterface <name-list> ()
@@ -112,16 +110,6 @@
   ;; DOMObject getFeature(in DOMString feature, in DOMString version)
   (feature (feature <dom-string>) version) ;<dom-string> or #f
   )
-
-;; interface UserDataHandler
-(definterface <user-data-handler> ()
-  ;; void handle (in unsigned short operation, in DOMString key,
-  ;;              in DOMUserData data, in Node src, in Node dst)
-  (handle (operation <operation-type>) (key <dom-string>)
-          (data <dom-user-data>) (src <node>) (dst <node>))
-  )
-
-;; [Document and DocumentFragment are declared below Node.]
 
 ;; // NodeType
 (define <node-type> <exact-integer>)
@@ -232,19 +220,6 @@
   (user-data (key <dom-string>))
   )
 
-;; // OperationType
-(define <operation-type> <exact-integer>)
-;; const unsigned short NODE_CLONED   = 1
-(define *node-cloned* 1)
-;; const unsigned short NODE_IMPORTED = 2
-(define *node-imported* 2)
-;; const unsigned short NODE_DELETED  = 3
-(define *node-deleted* 3)
-;; const unsigned short NODE_RENAMED  = 4
-(define *node-renamed* 4)
-;; const unsigned short NODE_ADOPTED  = 5
-(define *node-adopted* 5)
-
 ;; // DocumentPosition
 (define <document-position> <exact-integer>)
 ;; const unsigned short DOCUMENT_POSITION_DISCONNECTED            = 0x01
@@ -259,86 +234,6 @@
 (define *document-position-contained-by* #x10)
 ;; const unsigned short DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20
 (define *document-position-implementation-specific* #x20)
-
-;; interface DocumentFragment : Node
-(definterface <document-fragment> (<node>))
-
-;; interface Document : Node
-(definterface <document> (<node>)
-  ;; readonly attribute DocumentType doctype
-  (doctype)
-  ;; readonly attribute DOMImplementation implementation
-  (implementation)
-  ;; readonly attribute Element documentElement
-  (document-element)
-  ;; Element createElement(in DOMString tagName) raises(DOMException)
-  (create-element (tag-name <dom-string>))
-  ;; DocumentFragment createDocumentFragment()
-  (create-document-fragment)
-  ;; Text createTextNode(in DOMString data)
-  (create-text-node (data <dom-string>))
-  ;; Comment createComment(in DOMString data)
-  (create-comment (data <dom-string>))
-  ;; CDATASection createCDATASection(in DOMString data)
-  (create-cdata-section (data <dom-string>))
-  ;; ProcessingInstruction createProcessingInstruction(in DOMString target,
-  ;;                                                   in DOMString data)
-  ;;                       raises(DOMException)
-  (create-processing-instruction (target <dom-string>) (data <dom-string>))
-  ;; Attr createAttribute(in DOMString name) raises(DOMException)
-  (create-attribute (name <dom-string>))
-  ;; EntityReference createEntityReference(in DOMString name)
-  ;;                 raises(DOMException)
-  (create-entity-reference (name <dom-string>))
-  ;; NodeList getElementsByTagName(in DOMString tagname)
-  (elements-by-tag-name (tagname <dom-string>))
-  ;; Node importNode(in Node importedNode, in boolean deep)
-  ;;      raises(DOMException)
-  (import-node (imported-node <node>) deep?)
-  ;; Element createElementNS(in DOMString namespaceURI,
-  ;;                         in DOMString qualifiedName)
-  ;;         raises(DOMException)
-  (create-element-ns namespace-uri	;may be #f
-                     (qualified-name <dom-string>))
-  ;; Attr createAttributeNS(in DOMString namespaceURI,
-  ;;                        in DOMString qualified-name)
-  ;;         raises(DOMException)
-  (create-attribute-ns namespace-uri	;may be #f
-                       (qualified-name <dom-string>))
-  ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
-  ;;                                 in DOMString localName)
-  (elements-by-tag-name-ns namespace-uri ;may be #f
-                           (local-name <dom-string>))
-  ;; Element getElementById(in DOMString elementId)
-  (element-by-id (element-id <dom-string>))
-  ;; readonly attribute DOMString inputEncoding
-  (input-encoding)
-  ;; readonly attribute DOMString xmlEncoding
-  (xml-encoding)
-  ;; attribute boolean xmlStandalone // raises(DOMException) on setting
-  (xml-standalone?)
-  (set-xml-standalone?! value)
-  ;; attribute DOMString xmlVersion // raises(DOMException) on setting
-  (xml-version)
-  (set-xml-version! value)		;<dom-string> or #f
-  ;; attribute boolean strictErrorChecking
-  (strict-error-checking?)
-  (set-strict-error-checking?! value)
-  ;; attribute DOMString documentURI
-  (document-uri)
-  (set-document-uri! value)		;<dom-string> or #f
-  ;; Node adoptNode(in Node source) raises(DOMException)
-  (adopt-node! (source <node>))
-  ;; readonly attribute DOMConfiguration domConfig
-  (dom-config)
-  ;; void normalizeDocument()
-  (normalize-document!)
-  ;; Node renameNode(in Node n, in DOMString namespaceURI,
-  ;;                 in DOMString qualifiedName)
-  ;;      raises(DOMException)
-  (rename-node! (n <node>) namespace-uri ;may be #f
-		(qualified-name <dom-string>))
-  )
 
 ;; interface NodeList
 (definterface <node-list> ()
@@ -520,6 +415,27 @@
 ;; const unsigned long DERIVATION_LIST                = 0x00000008
 (define *derivation-list* #x00000008)
 
+;; interface UserDataHandler
+(definterface <user-data-handler> ()
+  ;; void handle (in unsigned short operation, in DOMString key,
+  ;;              in DOMUserData data, in Node src, in Node dst)
+  (handle (operation <operation-type>) (key <dom-string>)
+          (data <dom-user-data>) (src <node>) (dst <node>))
+  )
+
+;; // OperationType
+(define <operation-type> <exact-integer>)
+;; const unsigned short NODE_CLONED   = 1
+(define *node-cloned* 1)
+;; const unsigned short NODE_IMPORTED = 2
+(define *node-imported* 2)
+;; const unsigned short NODE_DELETED  = 3
+(define *node-deleted* 3)
+;; const unsigned short NODE_RENAMED  = 4
+(define *node-renamed* 4)
+;; const unsigned short NODE_ADOPTED  = 5
+(define *node-adopted* 5)
+
 ;; interface DOMError
 (definterface <dom-error> ()
   ;; readonly attribute unsigned short severity
@@ -578,4 +494,87 @@
   (can-set-parameter? (name <dom-string>) value) ;<dom-user-data> or #f
   ;; readonly attribute DOMStringList parameterNames
   (parameter-names)
+  )
+
+;; CDataSection, DocumentType, Notation, Entity, EntityReference, and
+;; ProcessingInstruction are in ../xml/interfaces.ss.
+
+;; interface DocumentFragment : Node
+(definterface <document-fragment> (<node>))
+
+;; interface Document : Node
+(definterface <document> (<node>)
+  ;; readonly attribute DocumentType doctype
+  (doctype)
+  ;; readonly attribute DOMImplementation implementation
+  (implementation)
+  ;; readonly attribute Element documentElement
+  (document-element)
+  ;; Element createElement(in DOMString tagName) raises(DOMException)
+  (create-element (tag-name <dom-string>))
+  ;; DocumentFragment createDocumentFragment()
+  (create-document-fragment)
+  ;; Text createTextNode(in DOMString data)
+  (create-text-node (data <dom-string>))
+  ;; Comment createComment(in DOMString data)
+  (create-comment (data <dom-string>))
+  ;; CDATASection createCDATASection(in DOMString data)
+  (create-cdata-section (data <dom-string>))
+  ;; ProcessingInstruction createProcessingInstruction(in DOMString target,
+  ;;                                                   in DOMString data)
+  ;;                       raises(DOMException)
+  (create-processing-instruction (target <dom-string>) (data <dom-string>))
+  ;; Attr createAttribute(in DOMString name) raises(DOMException)
+  (create-attribute (name <dom-string>))
+  ;; EntityReference createEntityReference(in DOMString name)
+  ;;                 raises(DOMException)
+  (create-entity-reference (name <dom-string>))
+  ;; NodeList getElementsByTagName(in DOMString tagname)
+  (elements-by-tag-name (tagname <dom-string>))
+  ;; Node importNode(in Node importedNode, in boolean deep)
+  ;;      raises(DOMException)
+  (import-node (imported-node <node>) deep?)
+  ;; Element createElementNS(in DOMString namespaceURI,
+  ;;                         in DOMString qualifiedName)
+  ;;         raises(DOMException)
+  (create-element-ns namespace-uri	;may be #f
+                     (qualified-name <dom-string>))
+  ;; Attr createAttributeNS(in DOMString namespaceURI,
+  ;;                        in DOMString qualified-name)
+  ;;         raises(DOMException)
+  (create-attribute-ns namespace-uri	;may be #f
+                       (qualified-name <dom-string>))
+  ;; NodeList getElementsByTagNameNS(in DOMString namespaceURI,
+  ;;                                 in DOMString localName)
+  (elements-by-tag-name-ns namespace-uri ;may be #f
+                           (local-name <dom-string>))
+  ;; Element getElementById(in DOMString elementId)
+  (element-by-id (element-id <dom-string>))
+  ;; readonly attribute DOMString inputEncoding
+  (input-encoding)
+  ;; readonly attribute DOMString xmlEncoding
+  (xml-encoding)
+  ;; attribute boolean xmlStandalone // raises(DOMException) on setting
+  (xml-standalone?)
+  (set-xml-standalone?! value)
+  ;; attribute DOMString xmlVersion // raises(DOMException) on setting
+  (xml-version)
+  (set-xml-version! value)		;<dom-string> or #f
+  ;; attribute boolean strictErrorChecking
+  (strict-error-checking?)
+  (set-strict-error-checking?! value)
+  ;; attribute DOMString documentURI
+  (document-uri)
+  (set-document-uri! value)		;<dom-string> or #f
+  ;; Node adoptNode(in Node source) raises(DOMException)
+  (adopt-node! (source <node>))
+  ;; readonly attribute DOMConfiguration domConfig
+  (dom-config)
+  ;; void normalizeDocument()
+  (normalize-document!)
+  ;; Node renameNode(in Node n, in DOMString namespaceURI,
+  ;;                 in DOMString qualifiedName)
+  ;;      raises(DOMException)
+  (rename-node! (n <node>) namespace-uri ;may be #f
+		(qualified-name <dom-string>))
   )
