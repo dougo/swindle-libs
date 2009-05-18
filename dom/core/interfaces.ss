@@ -46,8 +46,50 @@
 (define *type-mismatch-err* 17)
 
 
-;; TO DO: DOMStringList, NameList, DOMImplementationList,
-;; DOMImplementationSource, other Level 3 stuff.
+;; interface DOMStringList
+(definterface <dom-string-list> ()
+  ;; DOMString item(in unsigned long index)
+  (item (index <exact-integer>))
+  ;; readonly attribute unsigned long length
+  ;; [Use Swindle's len generic.]
+  ;; boolean contains(in DOMString str)
+  (contains? (str <dom-string>))
+  )
+
+
+;; interface NameList
+(definterface <name-list> ()
+  ;; TO DO: make <multiple-arity-generic> or something, so that
+  ;; get-name and get-namespace-uri can be called name and
+  ;; namespace-uri.  (They are defined as one-argument generics, on
+  ;; <attr> and <node> respectively.)
+  ;; DOMString getName(in unsigned long index)
+  (get-name &opt (index <exact-integer>))
+  ;; DOMString getNamespaceURI(in unsigned long index)
+  (get-namespace-uri &opt (index <exact-integer>))
+  ;; readonly attribute unsigned long length
+  ;; [Use Swindle's len generic.]
+  ;; boolean contains(in DOMString str)
+  ;; [Defined in <dom-string-list>.]
+  ;; boolean containsNS(in DOMString namespaceURI, in DOMString name)
+  (contains-ns? (namespace-uri <dom-string>) (name <dom-string>))
+  )
+
+;; interface DOMImplementationList
+(definterface <dom-implementation-list> ()
+  ;; DOMImplementation item(in unsigned long index)
+  ;; [Defined in <dom-string-list>.]
+  ;; readonly attribute unsigned long length;
+  ;; [Use Swindle's len generic.]
+  )
+
+;; interface DOMImplementationSource
+(definterface <dom-implementation-source> ()
+  ;; DOMImplementation getDOMImplementation(in DOMString features)
+  (dom-implementation (features <dom-string>))
+  ;; DOMImplementationList getDOMImplementationList(in DOMString features)
+  (dom-implementation-list (features <dom-string>))
+  )
 
 ;; interface DOMImplementation
 (definterface <dom-implementation> ()
@@ -67,7 +109,8 @@
   (create-document namespace-uri	;may be #f
                    (qualified-name <dom-string>)
                    doctype)		;may be #f
-  ;; TO DO: getFeature
+  ;; DOMObject getFeature(in DOMString feature, in DOMString version)
+  (feature (feature <dom-string>) version) ;<dom-string> or #f
   )
 
 ;; interface UserDataHandler
@@ -160,6 +203,8 @@
   (local-name)
   ;; boolean hasAttributes()
   (has-attributes?)
+  ;; readonly attribute DOMString baseURI
+  (base-uri)
   ;; unsigned short compareDocumentPosition(in Node other)
   ;;                raises(DOMException)
   (compare-document-position (other <node>))
@@ -178,7 +223,7 @@
   ;; boolean isEqualNode(in Node arg)
   (equal-node? (arg <node>))
   ;; DOMObject getFeature(in DOMString feature, in DOMString version)
-  (feature (feature <dom-string>) version) ;<dom-string> or #f
+  ;; [Defined in <dom-implementation>.]
   ;; DOMUserData setUserData(in DOMString key, in DOMUserData data,
   ;;                         in UserDataHandler handler)
   (set-user-data! (key <dom-string>) (data <dom-user-data>)
@@ -266,12 +311,39 @@
                            (local-name <dom-string>))
   ;; Element getElementById(in DOMString elementId)
   (element-by-id (element-id <dom-string>))
+  ;; readonly attribute DOMString inputEncoding
+  (input-encoding)
+  ;; readonly attribute DOMString xmlEncoding
+  (xml-encoding)
+  ;; attribute boolean xmlStandalone // raises(DOMException) on setting
+  (xml-standalone?)
+  (set-xml-standalone?! value)
+  ;; attribute DOMString xmlVersion // raises(DOMException) on setting
+  (xml-version)
+  (set-xml-version! value)		;<dom-string> or #f
+  ;; attribute boolean strictErrorChecking
+  (strict-error-checking?)
+  (set-strict-error-checking?! value)
+  ;; attribute DOMString documentURI
+  (document-uri)
+  (set-document-uri! value)		;<dom-string> or #f
+  ;; Node adoptNode(in Node source) raises(DOMException)
+  (adopt-node! (source <node>))
+  ;; readonly attribute DOMConfiguration domConfig
+  (dom-config)
+  ;; void normalizeDocument()
+  (normalize-document!)
+  ;; Node renameNode(in Node n, in DOMString namespaceURI,
+  ;;                 in DOMString qualifiedName)
+  ;;      raises(DOMException)
+  (rename-node! (n <node>) namespace-uri ;may be #f
+		(qualified-name <dom-string>))
   )
 
 ;; interface NodeList
 (definterface <node-list> ()
   ;; Node item(in unsigned long index)
-  (item (index <exact-integer>))
+  ;; [Defined in <dom-string-list>.]
   ;; readonly attribute unsigned long length
   ;; [Use Swindle's len generic.]
   )
@@ -285,7 +357,7 @@
   ;; Node removeNamedItem(in DOMString name) raises(DOMException)
   (remove-named-item! (name <dom-string>))
   ;; Node item(in unsigned long index)
-  ;; [Defined in <node-list>.]
+  ;; [Defined in <dom-string-list>.]
   ;; readonly attribute unsigned long length
   ;; [Use Swindle's len generic.]
   ;; Node getNamedItemNS(in DOMString namespaceURI, in DOMString localName)
@@ -336,6 +408,10 @@
   (set-value! (value <dom-string>))
   ;; readonly attribute Element ownerElement
   (owner-element)
+  ;; readonly attribute TypeInfo schemaTypeInfo
+  (schema-type-info)
+  ;; readonly attribute boolean isId
+  (id?)
   )
 
 ;; interface Element : Node
@@ -357,8 +433,6 @@
   (remove-attribute-node! (old-attr <attr>))
   ;; NodeList getElementsByTagName(in DOMString name)
   ;; [Defined in <document>.]
-  ;; void normalize()
-  ;; [Defined in <node>.]
   ;; DOMString getAttributeNS(in DOMString namespaceURI,
   ;;                          in DOMString localName)
   (attribute-ns namespace-uri		;may be #f
@@ -391,13 +465,117 @@
   ;;                        in DOMString localName)
   (has-attribute-ns? namespace-uri	;may be #f
                      (local-name <dom-string>))
+  ;; readonly attribute TypeInfo schemaTypeInfo
+  ;; [Defined in <document>.]
+  ;; void setIdAttribute(in DOMString name, in boolean isId)
+  ;;      raises(DOMException)
+  (set-id-attribute! (name <dom-string>) id?)
+  ;; void setIdAttributeNS(in DOMString namespaceURI, in DOMString localName, 
+  ;;                       in boolean isId)
+  ;;      raises(DOMException)
+  (set-id-attribute-ns! namespace-uri	;may be #f
+			(local-name <dom-string>) id?)
+  ;; void setIdAttributeNode(in Attr idAttr, in boolean isId)
+  ;;      raises(DOMException)
+  (set-id-attribute-node! (id-attr <attr>) id?)
   )
 
 ;; interface Text : CharacterData
 (definterface <text> (<character-data>)
   ;; Text splitText(in unsigned long offset) raises(DOMException)
   (split-text! (offset <exact-integer>))
+  ;; readonly attribute boolean isElementContentWhitespace
+  (element-content-whitespace?)
+  ;; readonly attribute DOMString wholeText
+  (whole-text)
+  ;; Text replaceWholeText(in DOMString content) raises(DOMException)
+  (replace-whole-text! (content <dom-string>))
   )
 
 ;; interface Comment : CharacterData
 (definterface <comment> (<character-data>))
+
+;; interface TypeInfo
+(definterface <type-info> ()
+  ;; readonly attribute DOMString typeName
+  (type-name)
+  ;; readonly attribute DOMString typeNamespace
+  (type-namespace)
+  ;; boolean isDerivedFrom(in DOMString typeNamespaceArg,
+  ;;                       in DOMString typeNameArg,
+  ;;                       in unsigned long derivationMethod)
+  (derived-from? type-namespace-arg	;may be #f
+		 (type-name-arg <dom-string>)
+		 (derivation-method <exact-integer>))
+  )
+
+;; // DerivationMethods
+(define <derivation-methods> <exact-integer>)
+;; const unsigned long DERIVATION_RESTRICTION         = 0x00000001
+(define *derivation-restriction* #x00000001)
+;; const unsigned long DERIVATION_EXTENSION           = 0x00000002
+(define *derivation-extension* #x00000002)
+;; const unsigned long DERIVATION_UNION               = 0x00000004
+(define *derivation-union* #x00000004)
+;; const unsigned long DERIVATION_LIST                = 0x00000008
+(define *derivation-list* #x00000008)
+
+;; interface DOMError
+(definterface <dom-error> ()
+  ;; readonly attribute unsigned short severity
+  (severity)
+  ;; readonly attribute DOMString message
+  (message)
+  ;; readonly attribute DOMString type
+  (type)
+  ;; readonly attribute DOMObject relatedException
+  (related-exception)
+  ;; readonly attribute DOMObject relatedData
+  (related-data)
+  ;; readonly attribute DOMLocator location
+  (location)
+  )
+
+;; // ErrorSeverity
+(define <error-severity> <exact-integer>)
+;; const unsigned short SEVERITY_WARNING               = 1
+(define *severity-warning* 1)
+;; const unsigned short SEVERITY_ERROR                 = 2
+(define *severity-error* 2)
+;; const unsigned short SEVERITY_FATAL_ERROR           = 3
+(define *severity-fatal-error* 3)
+
+;; interface DOMErrorHandler
+(definterface <dom-error-handler> ()
+  ;; boolean handleError(in DOMError error)
+  (handle-error (error <dom-error>))
+  )
+
+;; interface DOMLocator
+(definterface <dom-locator> ()
+  ;; readonly attribute long lineNumber
+  (line-number)
+  ;; readonly attribute long columnNumber
+  (column-number)
+  ;; readonly attribute long byteOffset
+  (byte-offset)
+  ;; readonly attribute long utf16Offset
+  (utf-16-offset)
+  ;; readonly attribute Node relatedNode
+  (related-node)
+  ;; readonly attribute DOMString uri
+  (uri)
+  )
+
+;; interface DOMConfiguration
+(definterface <dom-configuration> ()
+  ;; void setParameter(in DOMString name, in DOMUserData value)
+  ;;      raises(DOMException)
+  (set-parameter! (name <dom-string>) value) ;<dom-user-data> or #f
+  ;; DOMUserData getParameter(in DOMString name) raises(DOMException)
+  (parameter (name <dom-string>))
+  ;; boolean canSetParameter(in DOMString name, in DOMUserData value)
+  (can-set-parameter? (name <dom-string>) value) ;<dom-user-data> or #f
+  ;; readonly attribute DOMStringList parameterNames
+  (parameter-names)
+  )

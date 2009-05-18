@@ -41,6 +41,14 @@
   ;; [Defined in <document-type>.]
   ;; readonly attribute DOMString systemId
   ;; [Defined in <document-type>.]
+  ;; readonly attribute DOMString notationName
+  (notation-name)
+  ;; readonly attribute DOMString inputEncoding
+  ;; [Defined in <document>.]
+  ;; readonly attribute DOMString xmlEncoding
+  ;; [Defined in <document>.]
+  ;; readonly attribute DOMString xmlVersion
+  ;; [Defined in <document>.]
   )
 
 ;; interface EntityReference : Node
