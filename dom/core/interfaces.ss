@@ -77,7 +77,7 @@
 (definterface <dom-implementation-list> ()
   ;; DOMImplementation item(in unsigned long index)
   ;; [Defined in <dom-string-list>.]
-  ;; readonly attribute unsigned long length;
+  ;; readonly attribute unsigned long length
   ;; [Use Swindle's len generic.]
   )
 

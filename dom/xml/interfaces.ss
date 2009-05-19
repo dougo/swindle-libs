@@ -5,9 +5,6 @@
 (require "../core/interfaces.ss")
 (provide (all-defined))
 
-;; Proprietary way of bootstrapping <dom-implementation>.
-(defgeneric (make-xml-dom-implementation))
-
 ;; interface CDATASection : Text
 (definterface <cdata-section> (<text>))
 

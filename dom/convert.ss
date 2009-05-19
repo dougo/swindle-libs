@@ -53,7 +53,7 @@
                   (or (owner-document parent-or-dom) parent-or-dom)))
         (dom (if (instance-of? parent-or-dom <dom-implementation>)
                  parent-or-dom
-                 (make-xml-dom-implementation))))
+                 (dom-implementation *the-dom-implementation-registry* "XML"))))
     (cond ((xml:document? xml)
            (xml:document->dom xml dom))
           ((xml:document-type? xml)

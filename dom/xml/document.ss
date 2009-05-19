@@ -2,8 +2,10 @@
 
 (require "../swindle.ss")
 (require "../core/core.ss")
+(require (only "../core/document.ss" <document-impl>))
 (require "interfaces.ss")
-(require (only "bootstrap.ss" <xml-document>))
+
+(defclass* <xml-document> (<document-impl>))
 
 (defmethod (create-document (dom <dom-implementation>)
                             namespace-uri (qualified-name <dom-string>)

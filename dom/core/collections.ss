@@ -123,3 +123,12 @@
                                  (or (local-name node) (node-name node)))
                    node))
 
+
+(defclass* <dom-implementation-list-impl> (<dom-implementation-list>)
+  vec :autoaccessors :slot)
+
+(defmethod (item (impls <dom-implementation-list-impl>) (index <exact-integer>))
+  (vector-ref (vec impls) index))
+
+(defmethod (len (impls <dom-implementation-list-impl>))
+  (vector-length (vec impls)))

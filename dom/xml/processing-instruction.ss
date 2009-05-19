@@ -4,7 +4,7 @@
 (require "../core/types.ss")
 (require "../core/interfaces.ss")
 (require "interfaces.ss")
-(require (only "bootstrap.ss" <xml-document>))
+(require (only "document.ss" <xml-document>))
 (require (only "../core/node.ss" allow-child))
 (require (only "../core/readonly.ss" check-readonly))
 (require (only "../core/named.ss" <named>))

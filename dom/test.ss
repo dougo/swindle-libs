@@ -36,6 +36,7 @@
         (else
          (equal? xexpr1 xexpr2))))
 
+(define dom #f)
 (define doc #f)
 (define xml-output #f)
 (define doc2 #f)
@@ -64,7 +65,8 @@
 (define middle #f)
 
 (define (test2)
-  (set! doc (create-document (make-xml-dom-implementation) #f "root" #f))
+  (set! dom (dom-implementation *the-dom-implementation-registry* "XML"))
+  (set! doc (create-document dom #f "root" #f))
   (set! root (document-element doc))
   (set! text (append-child! root (create-text-node doc "foobar")))
   (pretty-print (dom->xexpr root))

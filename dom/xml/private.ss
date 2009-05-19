@@ -3,7 +3,6 @@
 (require "../swindle.ss")
 (require* "interfaces.ss")
 
-(require* "bootstrap.ss")
 (require* "cdata-section.ss")
 (require* "document.ss")
 (require* "document-type.ss")

@@ -4,7 +4,7 @@
 (require "../core/types.ss")
 (require "../core/interfaces.ss")
 (require "interfaces.ss")
-(require (only "bootstrap.ss" <xml-document>))
+(require (only "document.ss" <xml-document>))
 (require (only "../core/character-data.ss" <text-impl>))
 
 (defmethod (node-name (node <cdata-section>)) "#cdata-section")
