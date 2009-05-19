@@ -6,6 +6,7 @@
 (require "interfaces.ss")
 (require (only "../core/node.ss" allow-child? add-child!))
 (require (only "../core/readonly.ss" readonly?)) 
+(require (only "../core/dom-implementation.ss" *the-dom-implementation*))
 (require (only "../core/named.ss" <named>))
 (require (only "../core/owned.ss" <owned> set-owner-document!))
 (require (only "../core/child.ss" <child>))
@@ -33,6 +34,12 @@
 (defmethod (readonly? (x <document-type>)) #t)
 
 (defmethod (name (doctype <document-type>)) (node-name doctype))
+
+(defmethod (supported? (node <document-type>) (feature <dom-string>)
+		       &opt version)
+  ;; A <document-type> might have no owner-document, and has no pointer
+  ;; to its <dom-implementation>, so just use the singleton.
+  (has-feature? *the-dom-implementation* feature version))
 
 
 (defclass* <document-type-impl> (<named> <owned> <child> <document-type>)
@@ -64,7 +71,6 @@
                                        (qualified-name <dom-string>)
                                        public-id system-id)
   (check-qname qualified-name))
-
 
 (defclass* <xml-document-type> (<document-type-impl>)
   ;; TO DO: factor these from <entity-impl>

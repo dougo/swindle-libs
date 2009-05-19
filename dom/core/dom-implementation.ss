@@ -3,7 +3,6 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
-(require (only srfi/13 string-null?))
 
 (defmethod (has-feature? (impl <dom-implementation>)
                          (feature <dom-string>) &opt version)
@@ -17,11 +16,16 @@
 
 (defmethod (has-feature? (impl <dom-implementation-impl>)
                          (feature <dom-string>) &opt version)
-  (hash-table-get (features impl) 
-                  (if (and version (not (string-null? version)))
-                      (list feature version)
-                      feature)
-                  (thunk #f)))
+  (let ((feature (as <dom-string> (regexp-replace "^\\+" feature ""))))
+    (hash-table-get (features impl)
+		    (if (and version (not (string=? "" version)))
+			(list feature version)
+			feature)
+		    (thunk #f))))
+
+(defmethod (feature (impl <dom-implementation>) (feature <dom-string>)
+		    &opt version)
+  (and (has-feature? impl feature version) impl))
 
 (defmethod* (register-feature! (impl <dom-implementation-impl>)
                                (feature <dom-string>) (version <dom-string>))

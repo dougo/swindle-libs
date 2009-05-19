@@ -108,7 +108,7 @@
                    (qualified-name <dom-string>)
                    doctype)		;may be #f
   ;; DOMObject getFeature(in DOMString feature, in DOMString version)
-  (feature (feature <dom-string>) version) ;<dom-string> or #f
+  (feature (feature <dom-string>) &opt version)
   )
 
 ;; // NodeType

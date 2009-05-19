@@ -124,6 +124,10 @@
   (normalize-children! node))
 
 (defmethod (supported? (node <node>) (feature <dom-string>) &opt version)
-  (let ((doc (owner-document node)))
-    (and doc (has-feature? (implementation doc) feature version))))
+  (supported? (owner-document node) feature version))
 
+(defmethod (supported? (node <document>) (feature <dom-string>) &opt version)
+  (has-feature? (implementation node) feature version))
+
+(defmethod (feature (node <node>) (feature <dom-string>) &opt version)
+  (and (supported? node feature version) node))

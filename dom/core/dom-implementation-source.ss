@@ -20,11 +20,10 @@
     (cond ((null? features) *the-dom-implementation*)
 	  ((string=? "" (car features)) (loop (cdr features)))
 	  (else
-	   (let ((feature (as <dom-string>
-			      (regexp-replace "^\\+" (first features) "")))
+	   (let ((feature (as <dom-string> (first features)))
 		 (version (and (not (null? (cdr features)))
 			       (regexp-match "^[0-9]" (second features))
-			       (second features))))
+			       (as <dom-string> (second features)))))
 	     (and (has-feature? *the-dom-implementation* feature version)
 		  (loop (if version (cddr features) (cdr features)))))))))
 
