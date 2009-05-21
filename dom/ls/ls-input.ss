@@ -1,8 +1,10 @@
 #lang swindle
 
+(require "../swindle.ss")
 (require "../core/interfaces.ss")
 (require "../xml/interfaces.ss")
 (require "interfaces.ss")
+(require net/url)
 
 (defclass* <ls-input-impl> (<ls-input>)
   (character-stream :initvalue #f)
@@ -17,3 +19,15 @@
 
 (defmethod (create-ls-input (dom <dom-implementation-ls>))
   (make <ls-input-impl>))
+
+(defmethod* (input-port (input <ls-input>))
+  (cond ((character-stream input) => identity)
+	((byte-stream input) => identity)
+	((string-data input) => open-input-string)
+	((system-id input) =>
+	 (lambda (system-id)
+	   (get-pure-port
+	    (combine-url/relative
+	     (string->url (or (base-uri input) ""))
+	     system-id))))
+	(else #f)))

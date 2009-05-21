@@ -71,7 +71,7 @@
   ;;                       in unsigned short action)
   ;;      raises(dom::DOMException, LSException)
   (parse-with-context (input <ls-input>) (context-arg <node>)
-		      (action <exact-integer>))
+		      (action <action-type>))
   ;; void abort()
   (abort)
   )
