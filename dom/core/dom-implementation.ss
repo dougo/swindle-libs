@@ -3,12 +3,14 @@
 (require "../swindle.ss")
 (require "types.ss")
 (require "interfaces.ss")
+(require (only "../ls/interfaces.ss" <dom-implementation-ls>))
 
 (defmethod (has-feature? (impl <dom-implementation>)
                          (feature <dom-string>) &opt version)
   #f)
 
-(defclass* <dom-implementation-impl> (<dom-implementation>)
+(defclass* <dom-implementation-impl> (<dom-implementation>
+				      <dom-implementation-ls>)
   (features :reader features :allocation :class
             :initializer (thunk (make-hash-table 'equal))))
 

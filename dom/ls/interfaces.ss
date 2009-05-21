@@ -29,7 +29,8 @@
 (definterface <dom-implementation-ls> ()
   ;; LSParser createLSParser(in unsigned short mode, in DOMString schemaType)
   ;;          raises(dom::DOMException);
-  (create-ls-parser (mode <exact-integer>) &opt schema-type) ;<dom-string>
+  (create-ls-parser (mode <dom-implementation-ls-mode>)
+		    &opt schema-type) ;<dom-string>
   ;; LSSerializer createLSSerializer()
   (create-ls-serializer)
   ;; LSInput createLSInput()
@@ -101,7 +102,7 @@
   (set-encoding! encoding)
   ;; attribute boolean certifiedText
   (certified-text?)
-  (set-certified-text?!)
+  (set-certified-text?! certified-text?)
   )
 
 ;; interface LSResourceResolver

@@ -5,16 +5,15 @@
 (require (prefix xml: xml/xml))
 (provide (all-from xml/xml))
 (require (only srfi/1 lset=))
-(require (only mzlib/etc this-expression-source-directory))
+(require (only scheme/runtime-path define-runtime-path))
 (require* mzlib/pretty)
 (provide (all-defined))
 
+(define-runtime-path client.xsd "client.xsd")
+
 (xml:read-comments #t)
 (xml:xexpr-drop-empty-attributes #t)
-(define xml-input
-  (with-input-from-file (build-path (this-expression-source-directory)
-                                    "client.xsd")
-    xml:read-xml))
+(define xml-input (with-input-from-file client.xsd xml:read-xml))
 
 (define (xexpr-element-values xexpr)
   (if (null? (cdr xexpr))
@@ -37,13 +36,20 @@
          (equal? xexpr1 xexpr2))))
 
 (define dom #f)
+(define input #f)
+(define parser #f)
 (define doc #f)
 (define xml-output #f)
 (define doc2 #f)
 (define doc3 #f)
 
 (define (test1)
-  (set! doc (xml->dom xml-input))
+  (set! dom (dom-implementation *the-dom-implementation-registry* "LS"))
+  (set! input (create-ls-input dom))
+  (set! (system-id input)
+	(as <dom-string> (concat "file:" (path->string client.xsd))))
+  (set! parser (create-ls-parser dom *mode-synchronous*))
+  (set! doc (parse parser input))
   (set! xml-output (dom->xml doc))
   (if (same-xexpr? (xml:xml->xexpr (xml:document-element xml-input))
                    (xml:xml->xexpr (xml:document-element xml-output)))
