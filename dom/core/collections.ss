@@ -11,7 +11,7 @@
 (definterface* <node-collection> ())
 
 (defmethod (len (nodes <node-collection>))
-  (count-of (elt <- (each-elt nodes))))
+  (count-of (elt <- each-elt nodes)))
 ;; NOTE: descendants of <node-collection> MUST override either len
 ;; or each-elt.  Otherwise these form a cycle!
 

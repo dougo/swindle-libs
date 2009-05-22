@@ -27,4 +27,4 @@
     (as <vector>
 	(list-of impl
 	  (source <- (sources registry))
-	  (impl <- (each-elt (dom-implementation-list source features)))))))
+	  (impl <- each-elt (dom-implementation-list source features))))))
